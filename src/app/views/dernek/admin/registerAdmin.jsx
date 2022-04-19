@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { Controller, useForm } from 'react-hook-form';
 import ControlledAutocomplete from '../components/ControlledAutocomplete';
 import useSettings from 'app/hooks/useSettings';
-import { registerAdmin, getLastUserId } from 'app/services/service';
+import { registerAdmin, getLastId } from 'app/services/service';
 import { ServiceCalling } from '../../../services/serviceCalling';
 
 
@@ -16,7 +16,7 @@ const RegisterAdmin = (props) => {
 
     const getParameters = useCallback(
         async (isSaved) => {
-            let lastUserId = await ServiceCalling.getLastUserId(props);
+            let lastUserId = await ServiceCalling.getLastId(props, 'users');
             setValue("registerNo", parseInt(lastUserId) + 1)
 
             if (!isSaved) {
@@ -94,24 +94,6 @@ const RegisterAdmin = (props) => {
                                         defaultValue=""
                                     />
 
-                                    <ControlledAutocomplete
-                                        className="mb-4 w-full"
-                                        options={[{ id: "x", typeName: "Gaziantep" }, { id: "y", typeName: "Ankara" }]}
-                                        control={control}
-                                        name="city"
-                                        defaultValue={null}
-                                        getOptionLabel={(option) => option.typeName}
-                                        getOptionSelected={(option, value) => option.id === value.id}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                variant="outlined"
-                                                label="İl"
-                                                type="text"
-                                                error={!!errors.birthCity}
-                                            />
-                                        )}
-                                    />
                                 </Grid>
 
                                 <Grid item lg={6} md={6} sm={12} xs={12}>
@@ -149,27 +131,25 @@ const RegisterAdmin = (props) => {
                                         defaultValue=""
                                     />
 
-                                    <Controller
-                                        render={({ field }) =>
-                                            <TextField
-                                                {...field}
-                                                className="mb-4 w-full"
-                                                variant="outlined"
-                                                label="Şifresi"
-                                                type="text"
-                                                error={!!errors.password}
-                                            />
-                                        }
-                                        name="password"
-                                        control={control}
-                                        rules={{ required: true }}
-                                        defaultValue=""
-                                    />
-
-
                                 </Grid>
                             </Grid>
 
+                            <Controller
+                                render={({ field }) =>
+                                    <TextField
+                                        {...field}
+                                        className="mb-4 w-full"
+                                        variant="outlined"
+                                        label="Şifresi"
+                                        type="text"
+                                        error={!!errors.password}
+                                    />
+                                }
+                                name="password"
+                                control={control}
+                                rules={{ required: true }}
+                                defaultValue=""
+                            />
 
                             <Button color="primary" variant="contained" type="submit">
                                 <Icon>save</Icon>
@@ -185,5 +165,5 @@ const RegisterAdmin = (props) => {
 
 export default connect(null, {
     registerAdmin,
-    getLastUserId
+    getLastId
 })(RegisterAdmin)

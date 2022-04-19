@@ -25,9 +25,9 @@ export function tcNoValidate(tcNo) {
 
 //Get İşlemleri
 
-export const getLastUserId = (SuccessOperation, FailedOperation) => {
+export const getLastId = (collection, SuccessOperation, FailedOperation) => {
     return () => {
-        db.collection('users').orderBy('registerNo', 'desc').limit(1).get().then((querySnapshot) => {
+        db.collection(collection).orderBy('registerNo', 'desc').limit(1).get().then((querySnapshot) => {
             SuccessOperation({ lastUserId: querySnapshot.docs[0].data().registerNo })
         }).catch((error) => {
             FailedOperation(error);
@@ -35,15 +35,6 @@ export const getLastUserId = (SuccessOperation, FailedOperation) => {
     }
 }
 
-export const getLastFirmId = (SuccessOperation, FailedOperation) => {
-    return () => {
-        db.collection('firm').orderBy('registerNo', 'desc').limit(1).get().then((querySnapshot) => {
-            SuccessOperation({ lastUserId: querySnapshot.docs[0].data().registerNo })
-        }).catch((error) => {
-            FailedOperation(error);
-        });
-    }
-}
 
 //Admin İşlemleri
 
@@ -218,7 +209,7 @@ export const registerUser = (user, SuccessOperation, FailedOperation) => {
                                             refDatabase.add(Object.assign({
                                                 registerNo: user.registerNo,
                                                 registerDate: user.registerDate,
-                                                userPosition: user.userPosition,
+                                                userPosition: user.userPosition.id,
                                                 idNo: user.idNo,
                                                 name: user.name,
                                                 surname: user.surname,
@@ -226,27 +217,27 @@ export const registerUser = (user, SuccessOperation, FailedOperation) => {
                                                 motherName: user.motherName,
                                                 placeOfBirth: user.placeOfBirth,
                                                 birthday: user.birthday,
-                                                birthCity: user.birthCity,
-                                                birthCounty: user.birthCounty,
-                                                birthDistrict: user.birthDistrict,
-                                                maritalStatus: user.maritalStatus,
-                                                bloodGroup: user.bloodGroup,
+                                                birthCity: user.birthCity.il,
+                                                birthCounty: user.birthCounty.ilce,
+                                                birthDistrict: user.birthDistrict.id,
+                                                maritalStatus: user.maritalStatus.typeName,
+                                                bloodGroup: user.bloodGroup.typeName,
                                                 profilePicture: url,
-                                                liveCity: user.liveCity,
-                                                liveCounty: user.liveCounty,
-                                                liveDistrict: user.liveDistrict,
+                                                liveCity: user.liveCity.il,
+                                                liveCounty: user.liveCounty.ilce,
+                                                liveDistrict: user.liveDistrict.id,
                                                 liveStreet: user.liveStreet,
                                                 liveBuildingNo: user.liveBuildingNo,
                                                 email: user.email,
-                                                education: user.education,
-                                                foreignLanguage: user.foreignLanguage,
+                                                education: user.education.typeName,
+                                                foreignLanguage: user.foreignLanguage.id,
                                                 mobilePhone: user.mobilePhone,
                                                 status: 1,
                                                 userType: "user",
                                             },
                                                 user.businessPhone !== "" && { businessPhone: user.businessPhone },
                                                 user.businessAddress !== "" && { businessAddress: user.businessAddress },
-                                                user.job !== "" && { job: user.job },
+                                                user.job !== "" && { job: user.job.id },
                                                 user.description !== "" && { description: user.description },
                                                 user.facebook !== "" && { facebook: user.facebook },
                                                 user.twitter !== "" && { twitter: user.twitter },
@@ -299,7 +290,7 @@ export const updateUser = (user, oldUser, userId, SuccessOperation, FailedOperat
                                         refDatabase.update(Object.assign({
                                             registerNo: user.registerNo,
                                             registerDate: user.registerDate,
-                                            userPosition: user.userPosition,
+                                            userPosition: user.userPosition.id,
                                             idNo: user.idNo,
                                             name: user.name,
                                             surname: user.surname,
@@ -307,27 +298,27 @@ export const updateUser = (user, oldUser, userId, SuccessOperation, FailedOperat
                                             motherName: user.motherName,
                                             placeOfBirth: user.placeOfBirth,
                                             birthday: user.birthday,
-                                            birthCity: user.birthCity,
-                                            birthCounty: user.birthCounty,
-                                            birthDistrict: user.birthDistrict,
-                                            maritalStatus: user.maritalStatus,
-                                            bloodGroup: user.bloodGroup,
+                                            birthCity: user.birthCity.il,
+                                            birthCounty: user.birthCounty.ilce,
+                                            birthDistrict: user.birthDistrict.id,
+                                            maritalStatus: user.maritalStatus.typeName,
+                                            bloodGroup: user.bloodGroup.typeName,
                                             profilePicture: url,
-                                            liveCity: user.liveCity,
-                                            liveCounty: user.liveCounty,
-                                            liveDistrict: user.liveDistrict,
+                                            liveCity: user.liveCity.il,
+                                            liveCounty: user.liveCounty.ilce,
+                                            liveDistrict: user.liveDistrict.id,
                                             liveStreet: user.liveStreet,
                                             liveBuildingNo: user.liveBuildingNo,
                                             email: user.email,
-                                            education: user.education,
-                                            foreignLanguage: user.foreignLanguage,
+                                            education: user.education.typeName,
+                                            foreignLanguage: user.foreignLanguage.id,
                                             mobilePhone: user.mobilePhone,
                                             status: 1,
                                             userType: "user",
                                         },
                                             user.businessPhone !== "" && { businessPhone: user.businessPhone },
                                             user.businessAddress !== "" && { businessAddress: user.businessAddress },
-                                            user.job !== "" && { job: user.job },
+                                            user.job !== "" && { job: user.job.id },
                                             user.description !== "" && { description: user.description },
                                             user.facebook !== "" && { facebook: user.facebook },
                                             user.twitter !== "" && { twitter: user.twitter },
@@ -351,7 +342,7 @@ export const updateUser = (user, oldUser, userId, SuccessOperation, FailedOperat
                             refDatabase.update(Object.assign({
                                 registerNo: user.registerNo,
                                 registerDate: user.registerDate,
-                                userPosition: user.userPosition,
+                                userPosition: user.userPosition.id,
                                 idNo: user.idNo,
                                 name: user.name,
                                 surname: user.surname,
@@ -359,26 +350,26 @@ export const updateUser = (user, oldUser, userId, SuccessOperation, FailedOperat
                                 motherName: user.motherName,
                                 placeOfBirth: user.placeOfBirth,
                                 birthday: user.birthday,
-                                birthCity: user.birthCity,
-                                birthCounty: user.birthCounty,
-                                birthDistrict: user.birthDistrict,
-                                maritalStatus: user.maritalStatus,
-                                bloodGroup: user.bloodGroup,
-                                liveCity: user.liveCity,
-                                liveCounty: user.liveCounty,
-                                liveDistrict: user.liveDistrict,
+                                birthCity: user.birthCity.il,
+                                birthCounty: user.birthCounty.ilce,
+                                birthDistrict: user.birthDistrict.id,
+                                maritalStatus: user.maritalStatus.typeName,
+                                bloodGroup: user.bloodGroup.typeName,
+                                liveCity: user.liveCity.il,
+                                liveCounty: user.liveCounty.ilce,
+                                liveDistrict: user.liveDistrict.id,
                                 liveStreet: user.liveStreet,
                                 liveBuildingNo: user.liveBuildingNo,
                                 email: user.email,
-                                education: user.education,
-                                foreignLanguage: user.foreignLanguage,
+                                education: user.education.typeName,
+                                foreignLanguage: user.foreignLanguage.id,
                                 mobilePhone: user.mobilePhone,
                                 status: 1,
                                 userType: "user",
                             },
                                 user.businessPhone !== "" && { businessPhone: user.businessPhone },
                                 user.businessAddress !== "" && { businessAddress: user.businessAddress },
-                                user.job !== "" && { job: user.job },
+                                user.job !== "" && { job: user.job.id },
                                 user.description !== "" && { description: user.description },
                                 user.facebook !== "" && { facebook: user.facebook },
                                 user.twitter !== "" && { twitter: user.twitter },
@@ -408,7 +399,7 @@ export const updateUser = (user, oldUser, userId, SuccessOperation, FailedOperat
                                 refDatabase.update(Object.assign({
                                     registerNo: user.registerNo,
                                     registerDate: user.registerDate,
-                                    userPosition: user.userPosition,
+                                    userPosition: user.userPosition.id,
                                     idNo: user.idNo,
                                     name: user.name,
                                     surname: user.surname,
@@ -416,27 +407,27 @@ export const updateUser = (user, oldUser, userId, SuccessOperation, FailedOperat
                                     motherName: user.motherName,
                                     placeOfBirth: user.placeOfBirth,
                                     birthday: user.birthday,
-                                    birthCity: user.birthCity,
-                                    birthCounty: user.birthCounty,
-                                    birthDistrict: user.birthDistrict,
-                                    maritalStatus: user.maritalStatus,
-                                    bloodGroup: user.bloodGroup,
+                                    birthCity: user.birthCity.il,
+                                    birthCounty: user.birthCounty.ilce,
+                                    birthDistrict: user.birthDistrict.id,
+                                    maritalStatus: user.maritalStatus.typeName,
+                                    bloodGroup: user.bloodGroup.typeName,
                                     profilePicture: url,
-                                    liveCity: user.liveCity,
-                                    liveCounty: user.liveCounty,
-                                    liveDistrict: user.liveDistrict,
+                                    liveCity: user.liveCity.il,
+                                    liveCounty: user.liveCounty.ilce,
+                                    liveDistrict: user.liveDistrict.id,
                                     liveStreet: user.liveStreet,
                                     liveBuildingNo: user.liveBuildingNo,
                                     email: user.email,
-                                    education: user.education,
-                                    foreignLanguage: user.foreignLanguage,
+                                    education: user.education.typeName,
+                                    foreignLanguage: user.foreignLanguage.id,
                                     mobilePhone: user.mobilePhone,
                                     status: 1,
                                     userType: "user",
                                 },
                                     user.businessPhone !== "" && { businessPhone: user.businessPhone },
                                     user.businessAddress !== "" && { businessAddress: user.businessAddress },
-                                    user.job !== "" && { job: user.job },
+                                    user.job !== "" && { job: user.job.id },
                                     user.description !== "" && { description: user.description },
                                     user.facebook !== "" && { facebook: user.facebook },
                                     user.twitter !== "" && { twitter: user.twitter },
@@ -460,7 +451,7 @@ export const updateUser = (user, oldUser, userId, SuccessOperation, FailedOperat
                     refDatabase.update(Object.assign({
                         registerNo: user.registerNo,
                         registerDate: user.registerDate,
-                        userPosition: user.userPosition,
+                        userPosition: user.userPosition.id,
                         idNo: user.idNo,
                         name: user.name,
                         surname: user.surname,
@@ -468,26 +459,26 @@ export const updateUser = (user, oldUser, userId, SuccessOperation, FailedOperat
                         motherName: user.motherName,
                         placeOfBirth: user.placeOfBirth,
                         birthday: user.birthday,
-                        birthCity: user.birthCity,
-                        birthCounty: user.birthCounty,
-                        birthDistrict: user.birthDistrict,
-                        maritalStatus: user.maritalStatus,
-                        bloodGroup: user.bloodGroup,
-                        liveCity: user.liveCity,
-                        liveCounty: user.liveCounty,
-                        liveDistrict: user.liveDistrict,
+                        birthCity: user.birthCity.il,
+                        birthCounty: user.birthCounty.ilce,
+                        birthDistrict: user.birthDistrict.id,
+                        maritalStatus: user.maritalStatus.typeName,
+                        bloodGroup: user.bloodGroup.typeName,
+                        liveCity: user.liveCity.il,
+                        liveCounty: user.liveCounty.ilce,
+                        liveDistrict: user.liveDistrict.id,
                         liveStreet: user.liveStreet,
                         liveBuildingNo: user.liveBuildingNo,
                         email: user.email,
-                        education: user.education,
-                        foreignLanguage: user.foreignLanguage,
+                        education: user.education.typeName,
+                        foreignLanguage: user.foreignLanguage.id,
                         mobilePhone: user.mobilePhone,
                         status: 1,
                         userType: "user",
                     },
                         user.businessPhone !== "" && { businessPhone: user.businessPhone },
                         user.businessAddress !== "" && { businessAddress: user.businessAddress },
-                        user.job !== "" && { job: user.job },
+                        user.job !== "" && { job: user.job.id },
                         user.description !== "" && { description: user.description },
                         user.facebook !== "" && { facebook: user.facebook },
                         user.twitter !== "" && { twitter: user.twitter },
@@ -680,6 +671,433 @@ export const deleteFirm = (firmId, reason, SuccessOperation, FailedOperation) =>
                 deleteDate: reason.exitDate,
                 deleteReason: reason.exitReason
             }
+        }).then(() => {
+            SnackbarUtils.success('Başarıyla silindi!');
+            SuccessOperation({});
+        }).catch(error => {
+            console.log("================>I'm in error<================", error)
+            FailedOperation({ errorMsg: error });
+        });
+    }
+}
+
+//get parameters
+export const getUserTypeList = (SuccessOperation, FailedOperation) => {
+    return () => {
+        const REF_DATABASE = db.collection('userTypes').where('status', '==', 1).orderBy("registerDate", 'desc');
+
+        REF_DATABASE.get().then(function (querySnapshot) {
+            const userTypes = [];
+            querySnapshot.forEach(function (doc) {
+                userTypes.push({
+                    id: doc.id,
+                    data: doc.data()
+                })
+            });
+            SuccessOperation({ userTypes: userTypes });
+        }).catch(function (error) {
+            console.log("================>I'm in error<================", error)
+            FailedOperation({ errorMsg: error });
+        });
+    }
+}
+
+export const getDistrictList = (SuccessOperation, FailedOperation) => {
+    return () => {
+        const REF_DATABASE = db.collection('districts').where('status', '==', 1).orderBy("registerDate", 'desc');
+
+        REF_DATABASE.get().then(function (querySnapshot) {
+            const districtList = [];
+            querySnapshot.forEach(function (doc) {
+                districtList.push({
+                    id: doc.id,
+                    data: doc.data()
+                })
+            });
+            SuccessOperation({ districtList: districtList });
+        }).catch(function (error) {
+            console.log("================>I'm in error<================", error)
+            FailedOperation({ errorMsg: error });
+        });
+    }
+}
+
+export const getJobList = (SuccessOperation, FailedOperation) => {
+    return () => {
+        const REF_DATABASE = db.collection('jobs').where('status', '==', 1).orderBy("registerDate", 'desc');
+
+        REF_DATABASE.get().then(function (querySnapshot) {
+            const jobList = [];
+            querySnapshot.forEach(function (doc) {
+                jobList.push({
+                    id: doc.id,
+                    data: doc.data()
+                })
+            });
+            SuccessOperation({ jobList: jobList });
+        }).catch(function (error) {
+            console.log("================>I'm in error<================", error)
+            FailedOperation({ errorMsg: error });
+        });
+    }
+}
+
+export const getActivityKindList = (SuccessOperation, FailedOperation) => {
+    return () => {
+        const REF_DATABASE = db.collection('activityKinds').where('status', '==', 1).orderBy("registerDate", 'desc');
+
+        REF_DATABASE.get().then(function (querySnapshot) {
+            const activityKindList = [];
+            querySnapshot.forEach(function (doc) {
+                activityKindList.push({
+                    id: doc.id,
+                    data: doc.data()
+                })
+            });
+            SuccessOperation({ activityKindList: activityKindList });
+        }).catch(function (error) {
+            console.log("================>I'm in error<================", error)
+            FailedOperation({ errorMsg: error });
+        });
+    }
+}
+
+export const getForeignLanguageList = (SuccessOperation, FailedOperation) => {
+    return () => {
+        const REF_DATABASE = db.collection('foreignLanguages').where('status', '==', 1).orderBy("registerDate", 'desc');
+
+        REF_DATABASE.get().then(function (querySnapshot) {
+            const foreignLanguageList = [];
+            querySnapshot.forEach(function (doc) {
+                foreignLanguageList.push({
+                    id: doc.id,
+                    data: doc.data()
+                })
+            });
+            SuccessOperation({ foreignLanguageList: foreignLanguageList });
+        }).catch(function (error) {
+            console.log("================>I'm in error<================", error)
+            FailedOperation({ errorMsg: error });
+        });
+    }
+}
+
+//reigster parameters
+export const registerUserType = (userType, SuccessOperation, FailedOperation) => {
+    return () => {
+        db.collection('userTypes').where("registerNo", '==', userType.registerNo).get().then((querySnapshot) => {
+            if (querySnapshot.empty) {
+                const REF_DATABASE = db.collection('userTypes');
+
+                REF_DATABASE.add({
+                    typeName: userType.typeName,
+                    registerNo: userType.registerNo,
+                    registerDate: new Date(),
+                    status: 1,
+                }).then(() => {
+                    SnackbarUtils.success('Başarıyla kayıt edildi!');
+                    SuccessOperation({});
+                }).catch(error => {
+                    console.log("================>I'm in error<================", error)
+                    FailedOperation({ errorMsg: error });
+                });
+            } else {
+                SnackbarUtils.error('Bu kayıt numarasına yeni kayıt alındı lütfen sayfayı yenileyin!');
+                FailedOperation({ errorMsg: 'Bu kayıt numarası kullanılıyor!' });
+            }
+        }).catch(error => {
+            console.log("================>I'm in error<================", error)
+            FailedOperation({ errorMsg: error });
+        });
+    }
+}
+
+export const registerDistrict = (district, SuccessOperation, FailedOperation) => {
+    return () => {
+        db.collection('districts').where("registerNo", '==', district.registerNo).get().then((querySnapshot) => {
+            if (querySnapshot.empty) {
+                const REF_DATABASE = db.collection('districts');
+
+                REF_DATABASE.add({
+                    typeName: district.typeName,
+                    registerNo: district.registerNo,
+                    registerDate: new Date(),
+                    city: district.city.il,
+                    county: district.county.ilce,
+                    status: 1,
+                }).then(() => {
+                    SnackbarUtils.success('Başarıyla kayıt edildi!');
+                    SuccessOperation({});
+                }).catch(error => {
+                    console.log("================>I'm in error<================", error)
+                    FailedOperation({ errorMsg: error });
+                });
+            } else {
+                SnackbarUtils.error('Bu kayıt numarasına yeni kayıt alındı lütfen sayfayı yenileyin!');
+                FailedOperation({ errorMsg: 'Bu kayıt numarası kullanılıyor!' });
+            }
+        }).catch(error => {
+            console.log("================>I'm in error<================", error)
+            FailedOperation({ errorMsg: error });
+        });
+    }
+}
+
+export const registerJob = (job, SuccessOperation, FailedOperation) => {
+    return () => {
+        db.collection('jobs').where("registerNo", '==', job.registerNo).get().then((querySnapshot) => {
+            if (querySnapshot.empty) {
+
+                const REF_DATABASE = db.collection('jobs');
+
+                REF_DATABASE.add({
+                    typeName: job.typeName,
+                    registerNo: job.registerNo,
+                    registerDate: new Date(),
+                    status: 1,
+                }).then(() => {
+                    SnackbarUtils.success('Başarıyla kayıt edildi!');
+                    SuccessOperation({});
+                }).catch(error => {
+                    console.log("================>I'm in error<================", error)
+                    FailedOperation({ errorMsg: error });
+                });
+            } else {
+                SnackbarUtils.error('Bu kayıt numarasına yeni kayıt alındı lütfen sayfayı yenileyin!');
+                FailedOperation({ errorMsg: 'Bu kayıt numarası kullanılıyor!' });
+            }
+        }).catch(error => {
+            console.log("================>I'm in error<================", error)
+            FailedOperation({ errorMsg: error });
+        });
+    }
+}
+
+export const registerActivityKind = (activityKind, SuccessOperation, FailedOperation) => {
+    return () => {
+        db.collection('activityKinds').where("registerNo", '==', activityKind.registerNo).get().then((querySnapshot) => {
+            if (querySnapshot.empty) {
+
+                const REF_DATABASE = db.collection('activityKinds');
+
+                REF_DATABASE.add({
+                    typeName: activityKind.typeName,
+                    registerNo: activityKind.registerNo,
+                    registerDate: new Date(),
+                    status: 1,
+                }).then(() => {
+                    SnackbarUtils.success('Başarıyla kayıt edildi!');
+                    SuccessOperation({});
+                }).catch(error => {
+                    console.log("================>I'm in error<================", error)
+                    FailedOperation({ errorMsg: error });
+                });
+            } else {
+                SnackbarUtils.error('Bu kayıt numarasına yeni kayıt alındı lütfen sayfayı yenileyin!');
+                FailedOperation({ errorMsg: 'Bu kayıt numarası kullanılıyor!' });
+            }
+        }).catch(error => {
+            console.log("================>I'm in error<================", error)
+            FailedOperation({ errorMsg: error });
+        });
+    }
+}
+
+export const registerForeignLanguage = (foreignLanguage, SuccessOperation, FailedOperation) => {
+    return () => {
+        db.collection('foreignLanguages').where("registerNo", '==', foreignLanguage.registerNo).get().then((querySnapshot) => {
+            if (querySnapshot.empty) {
+
+                const REF_DATABASE = db.collection('foreignLanguages');
+
+                REF_DATABASE.add({
+                    typeName: foreignLanguage.typeName,
+                    registerNo: foreignLanguage.registerNo,
+                    registerDate: new Date(),
+                    status: 1,
+                }).then(() => {
+                    SnackbarUtils.success('Başarıyla kayıt edildi!');
+                    SuccessOperation({});
+                }).catch(error => {
+                    console.log("================>I'm in error<================", error)
+                    FailedOperation({ errorMsg: error });
+                });
+            } else {
+                SnackbarUtils.error('Bu kayıt numarasına yeni kayıt alındı lütfen sayfayı yenileyin!');
+                FailedOperation({ errorMsg: 'Bu kayıt numarası kullanılıyor!' });
+            }
+        }).catch(error => {
+            console.log("================>I'm in error<================", error)
+            FailedOperation({ errorMsg: error });
+        });
+    }
+}
+
+//update parameters
+export const updateUserType = (userType, updateUserTypeId, SuccessOperation, FailedOperation) => {
+    return () => {
+        const REF_DATABASE = db.collection('userTypes').doc(updateUserTypeId);
+
+        REF_DATABASE.update({
+            typeName: userType.typeName,
+            registerNo: userType.registerNo,
+        }).then(() => {
+            SnackbarUtils.success('Başarıyla güncellendi!');
+            SuccessOperation({});
+        }).catch(error => {
+            console.log("================>I'm in error<================", error)
+            FailedOperation({ errorMsg: error });
+        });
+    }
+}
+
+
+export const updateDistrict = (district, updateDistrictId, SuccessOperation, FailedOperation) => {
+    return () => {
+        const REF_DATABASE = db.collection('districts').doc(updateDistrictId);
+
+        REF_DATABASE.update({
+            typeName: district.typeName,
+            //city: district.city,
+            //county: district.county,
+        }).then(() => {
+            SnackbarUtils.success('Başarıyla güncellendi!');
+            SuccessOperation({});
+        }).catch(error => {
+            console.log("================>I'm in error<================", error)
+            FailedOperation({ errorMsg: error });
+        });
+    }
+}
+
+
+export const updateJob = (job, updateJobId, SuccessOperation, FailedOperation) => {
+    return () => {
+        const REF_DATABASE = db.collection('jobs').doc(updateJobId);
+
+        REF_DATABASE.update({
+            typeName: job.typeName,
+        }).then(() => {
+            SnackbarUtils.success('Başarıyla güncellendi!');
+            SuccessOperation({});
+        }).catch(error => {
+            console.log("================>I'm in error<================", error)
+            FailedOperation({ errorMsg: error });
+        });
+    }
+}
+
+
+export const updateActivityKind = (activityKind, updateActivityKindId, SuccessOperation, FailedOperation) => {
+    return () => {
+        const REF_DATABASE = db.collection('activityKinds').doc(updateActivityKindId);
+
+        REF_DATABASE.update({
+            typeName: activityKind.typeName,
+            registerNo: activityKind.registerNo,
+        }).then(() => {
+            SnackbarUtils.success('Başarıyla güncellendi!');
+            SuccessOperation({});
+        }).catch(error => {
+            console.log("================>I'm in error<================", error)
+            FailedOperation({ errorMsg: error });
+        });
+    }
+}
+
+
+export const updateForeignLanguage = (foreignLanguage, updateForeignLanguageId, SuccessOperation, FailedOperation) => {
+    return () => {
+        const REF_DATABASE = db.collection('foreignLanguages').doc(updateForeignLanguageId);
+
+        REF_DATABASE.update({
+            typeName: foreignLanguage.typeName,
+            registerNo: foreignLanguage.registerNo,
+        }).then(() => {
+            SnackbarUtils.success('Başarıyla güncellendi!');
+            SuccessOperation({});
+        }).catch(error => {
+            console.log("================>I'm in error<================", error)
+            FailedOperation({ errorMsg: error });
+        });
+    }
+}
+
+//delete parameters
+export const deleteUserType = (deleteUserTypeId, SuccessOperation, FailedOperation) => {
+    return () => {
+        const REF_DATABASE = db.collection('userTypes').doc(deleteUserTypeId);
+
+        REF_DATABASE.update({
+            status: 0,
+        }).then(() => {
+            SnackbarUtils.success('Başarıyla silindi!');
+            SuccessOperation({});
+        }).catch(error => {
+            console.log("================>I'm in error<================", error)
+            FailedOperation({ errorMsg: error });
+        });
+    }
+}
+
+
+export const deleteDistrict = (deleteDistrictId, SuccessOperation, FailedOperation) => {
+    return () => {
+        const REF_DATABASE = db.collection('districts').doc(deleteDistrictId);
+
+        REF_DATABASE.update({
+            status: 0,
+        }).then(() => {
+            SnackbarUtils.success('Başarıyla silindi!');
+            SuccessOperation({});
+        }).catch(error => {
+            console.log("================>I'm in error<================", error)
+            FailedOperation({ errorMsg: error });
+        });
+    }
+}
+
+
+export const deleteJob = (deleteJobId, SuccessOperation, FailedOperation) => {
+    return () => {
+        const REF_DATABASE = db.collection('jobs').doc(deleteJobId);
+
+        REF_DATABASE.update({
+            status: 0,
+        }).then(() => {
+            SnackbarUtils.success('Başarıyla silindi!');
+            SuccessOperation({});
+        }).catch(error => {
+            console.log("================>I'm in error<================", error)
+            FailedOperation({ errorMsg: error });
+        });
+    }
+}
+
+
+export const deleteActivityKind = (deleteActivityKindId, SuccessOperation, FailedOperation) => {
+    return () => {
+        const REF_DATABASE = db.collection('activityKinds').doc(deleteActivityKindId);
+
+        REF_DATABASE.update({
+            status: 0,
+        }).then(() => {
+            SnackbarUtils.success('Başarıyla silindi!');
+            SuccessOperation({});
+        }).catch(error => {
+            console.log("================>I'm in error<================", error)
+            FailedOperation({ errorMsg: error });
+        });
+    }
+}
+
+
+export const deleteForeignLanguage = (deleteForeignLanguageId, SuccessOperation, FailedOperation) => {
+    return () => {
+        const REF_DATABASE = db.collection('foreignLanguages').doc(deleteForeignLanguageId);
+
+        REF_DATABASE.update({
+            status: 0,
         }).then(() => {
             SnackbarUtils.success('Başarıyla silindi!');
             SuccessOperation({});

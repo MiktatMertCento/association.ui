@@ -1,0 +1,26 @@
+[
+    {
+        "id": 0,
+        "typeName": "İlköğretim"
+    },
+    {
+        "id": 1,
+        "typeName": "Lise"
+    },
+    {
+        "id": 2,
+        "typeName": "Önlisans"
+    },
+    {
+        "id": 3,
+        "typeName": "Lisans"
+    },
+    {
+        "id": 4,
+        "typeName": "Yüksek Lisans"
+    },
+    {
+        "id": 5,
+        "typeName": "Doktora"
+    }
+]

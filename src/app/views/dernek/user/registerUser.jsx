@@ -8,19 +8,36 @@ import trLocale from "date-fns/locale/tr";
 import ControlledAutocomplete from '../components/ControlledAutocomplete';
 import { KeyboardDatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 import useSettings from 'app/hooks/useSettings';
-import { registerUser, getLastUserId } from 'app/services/service';
+import { registerUser, getLastId, getUserTypeList, getDistrictList, getForeignLanguageList, getJobList } from 'app/services/service';
 import { ServiceCalling } from 'app/services/serviceCalling';
+import counties from '../assets/json/Counties.json';
+import cities from '../assets/json/Cities.json';
+import bloodGroups from '../assets/json/BloodGroups.json';
+import educationStatus from '../assets/json/EducationStatus.json';
 
 const UserRegistration = (props) => {
     const { settings } = useSettings()
     const [isLoading, setIsLoading] = useState(true)
     const profilePictureRef = useRef()
     const { watch, setValue, getValues, handleSubmit, control, reset, formState: { errors } } = useForm();
+    const [userTypes, setUserTypes] = useState([])
+    const [districtList, setDistrictList] = useState([])
+    const [foreignLanguageList, setForeignLanguageList] = useState([])
+    const [jobList, setJobList] = useState([])
 
     const getParameters = useCallback(
         async () => {
-            let lastUserId = await ServiceCalling.getLastUserId(props);
+            let lastUserId = await ServiceCalling.getLastId(props, 'users');
             setValue("registerNo", parseInt(lastUserId) + 1)
+
+            let userTypes_ = await ServiceCalling.getUserTypeList(props);
+            setUserTypes(userTypes_)
+            let districtList_ = await ServiceCalling.getDistrictList(props);
+            setDistrictList(districtList_)
+            let foreignLanguage_ = await ServiceCalling.getForeignLanguageList(props);
+            setForeignLanguageList(foreignLanguage_)
+            let jobList_ = await ServiceCalling.getJobList(props);
+            setJobList(jobList_)
 
             setIsLoading(false);
         },
@@ -53,8 +70,8 @@ const UserRegistration = (props) => {
         liveCity: null,
         liveCounty: null,
         liveDistrict: null,
-        liveStreet: null,
-        liveBuildingNo: null,
+        liveStreet: "",
+        liveBuildingNo: "",
         businessAddress: "",
         description: "",
         email: "",
@@ -135,12 +152,12 @@ const UserRegistration = (props) => {
 
                                         <ControlledAutocomplete
                                             className="mb-4 w-full"
-                                            options={[{ id: "x", typeName: "Başkan" }, { id: "y", typeName: "Başkan Vekili" }]}
+                                            options={userTypes}
                                             control={control}
                                             name="userPosition"
                                             defaultValue={null}
                                             required={true}
-                                            getOptionLabel={(option) => option.typeName}
+                                            getOptionLabel={(option) => option.data.typeName}
                                             getOptionSelected={(option, value) => option.id === value.id}
                                             renderInput={(params) => (
                                                 <TextField
@@ -283,51 +300,52 @@ const UserRegistration = (props) => {
 
                                         <ControlledAutocomplete
                                             className="mb-4 w-full"
-                                            options={[{ id: "x", typeName: "Gaziantep" }, { id: "y", typeName: "Ankara" }]}
+                                            options={cities}
                                             control={control}
                                             name="birthCity"
                                             defaultValue={null}
                                             required={true}
-                                            getOptionLabel={(option) => option.typeName}
-                                            getOptionSelected={(option, value) => option.id === value.id}
+                                            getOptionLabel={(option) => option.il}
+                                            getOptionSelected={(option, value) => option.nviid === value.nviid}
+                                            onChange={(() => { setValue("birthCounty", null) })}
                                             renderInput={(params) => (
                                                 <TextField
                                                     {...params}
                                                     variant="outlined"
-                                                    label="Doğduğu İl"
+                                                    label="İl"
                                                     type="text"
-                                                    error={!!errors.birthCity}
+                                                    error={!!errors.city}
                                                 />
                                             )}
                                         />
 
                                         <ControlledAutocomplete
                                             className="mb-4 w-full"
-                                            options={[{ id: "x", typeName: "Şahinbey" }, { id: "y", typeName: "Şehitkamil" }]}
+                                            options={watch("birthCity") ? counties.filter(county => county.plaka === watch("birthCity").plaka) : []}
                                             control={control}
                                             name="birthCounty"
                                             defaultValue={null}
-                                            getOptionLabel={(option) => option.typeName}
-                                            getOptionSelected={(option, value) => option.id === value.id}
                                             required={true}
+                                            getOptionLabel={(option) => option.ilce}
+                                            getOptionSelected={(option, value) => option.nviid === value.nviid}
                                             renderInput={(params) => (
                                                 <TextField
                                                     {...params}
                                                     variant="outlined"
-                                                    label="Doğduğu İlçe"
+                                                    label="İlçe"
                                                     type="text"
-                                                    error={!!errors.birthCounty}
+                                                    error={!!errors.county}
                                                 />
                                             )}
                                         />
 
                                         <ControlledAutocomplete
                                             className="mb-4 w-full"
-                                            options={[{ id: "x", typeName: "Barak" }, { id: "y", typeName: "Mücahitler" }]}
+                                            options={watch("birthCounty") ? districtList.filter(district => district.data.county === watch("birthCounty").ilce) : []}
                                             control={control}
                                             name="birthDistrict"
                                             defaultValue={null}
-                                            getOptionLabel={(option) => option.typeName}
+                                            getOptionLabel={(option) => option.data.typeName}
                                             getOptionSelected={(option, value) => option.id === value.id}
                                             required={true}
                                             renderInput={(params) => (
@@ -343,7 +361,7 @@ const UserRegistration = (props) => {
 
                                         <ControlledAutocomplete
                                             className="mb-4 w-full"
-                                            options={[{ id: "x", typeName: "Evli" }, { id: "y", typeName: "Dul" }]}
+                                            options={[{ id: "0", typeName: "Evli" }, { id: "1", typeName: "Bekar" }, { id: "2", typeName: "Boşanmış" }, { id: "3", typeName: "Dul" }]}
                                             control={control}
                                             name="maritalStatus"
                                             defaultValue={null}
@@ -363,7 +381,7 @@ const UserRegistration = (props) => {
 
                                         <ControlledAutocomplete
                                             className="mb-4 w-full"
-                                            options={[{ id: "x", typeName: "0RH+" }, { id: "y", typeName: "0RH-" }]}
+                                            options={bloodGroups}
                                             control={control}
                                             name="bloodGroup"
                                             defaultValue={null}
@@ -427,51 +445,52 @@ const UserRegistration = (props) => {
 
                                         <ControlledAutocomplete
                                             className="mb-4 w-full"
-                                            options={[{ id: "x", typeName: "Gaziantep" }, { id: "y", typeName: "Ankara" }]}
+                                            options={cities}
                                             control={control}
                                             name="liveCity"
                                             defaultValue={null}
-                                            getOptionLabel={(option) => option.typeName}
-                                            getOptionSelected={(option, value) => option.id === value.id}
                                             required={true}
+                                            getOptionLabel={(option) => option.il}
+                                            getOptionSelected={(option, value) => option.nviid === value.nviid}
+                                            onChange={(() => { setValue("liveCounty", null) })}
                                             renderInput={(params) => (
                                                 <TextField
                                                     {...params}
                                                     variant="outlined"
-                                                    label="Yaşadığı İl"
+                                                    label="İl"
                                                     type="text"
-                                                    error={!!errors.liveCity}
+                                                    error={!!errors.city}
                                                 />
                                             )}
                                         />
 
                                         <ControlledAutocomplete
                                             className="mb-4 w-full"
-                                            options={[{ id: "x", typeName: "Şahinbey" }, { id: "y", typeName: "Şehitkamil" }]}
+                                            options={watch("liveCity") ? counties.filter(county => county.plaka === watch("liveCity").plaka) : []}
                                             control={control}
                                             name="liveCounty"
                                             defaultValue={null}
-                                            getOptionLabel={(option) => option.typeName}
-                                            getOptionSelected={(option, value) => option.id === value.id}
                                             required={true}
+                                            getOptionLabel={(option) => option.ilce}
+                                            getOptionSelected={(option, value) => option.nviid === value.nviid}
                                             renderInput={(params) => (
                                                 <TextField
                                                     {...params}
                                                     variant="outlined"
-                                                    label="Yaşadığı İlçe"
+                                                    label="İlçe"
                                                     type="text"
-                                                    error={!!errors.liveCounty}
+                                                    error={!!errors.county}
                                                 />
                                             )}
                                         />
 
                                         <ControlledAutocomplete
                                             className="mb-4 w-full"
-                                            options={[{ id: "x", typeName: "Barak" }, { id: "y", typeName: "Mücahitler" }]}
+                                            options={watch("liveCounty") ? districtList.filter(district => district.data.county === watch("liveCounty").ilce) : []}
                                             control={control}
                                             name="liveDistrict"
                                             defaultValue={null}
-                                            getOptionLabel={(option) => option.typeName}
+                                            getOptionLabel={(option) => option.data.typeName}
                                             getOptionSelected={(option, value) => option.id === value.id}
                                             required={true}
                                             renderInput={(params) => (
@@ -480,49 +499,43 @@ const UserRegistration = (props) => {
                                                     variant="outlined"
                                                     label="Yaşadığı Mahalle"
                                                     type="text"
-                                                    error={!!errors.liveDistrict}
+                                                    error={!!errors.birthDistrict}
                                                 />
                                             )}
                                         />
 
-                                        <ControlledAutocomplete
-                                            className="mb-4 w-full"
-                                            options={[{ id: "x", typeName: "100248" }, { id: "y", typeName: "100249" }]}
-                                            control={control}
-                                            name="liveStreet"
-                                            defaultValue={null}
-                                            getOptionLabel={(option) => option.typeName}
-                                            getOptionSelected={(option, value) => option.id === value.id}
-                                            required={true}
-                                            renderInput={(params) => (
+                                        <Controller
+                                            render={({ field }) =>
                                                 <TextField
-                                                    {...params}
+                                                    {...field}
+                                                    className="mb-4 w-full"
                                                     variant="outlined"
-                                                    label="Yaşadığı Sokak"
+                                                    label="Yaşdığı Sokak"
                                                     type="text"
+                                                    multiline
                                                     error={!!errors.liveStreet}
                                                 />
-                                            )}
+                                            }
+                                            name="liveStreet"
+                                            control={control}
+                                            defaultValue=""
                                         />
 
-                                        <ControlledAutocomplete
-                                            className="mb-4 w-full"
-                                            options={[{ id: "x", typeName: "35" }, { id: "y", typeName: "36" }]}
-                                            control={control}
-                                            name="liveBuildingNo"
-                                            defaultValue={null}
-                                            getOptionLabel={(option) => option.typeName}
-                                            getOptionSelected={(option, value) => option.id === value.id}
-                                            required={true}
-                                            renderInput={(params) => (
+                                        <Controller
+                                            render={({ field }) =>
                                                 <TextField
-                                                    {...params}
+                                                    {...field}
+                                                    className="mb-4 w-full"
                                                     variant="outlined"
                                                     label="Yaşadığı Bina No"
                                                     type="text"
+                                                    multiline
                                                     error={!!errors.liveBuildingNo}
                                                 />
-                                            )}
+                                            }
+                                            name="liveBuildingNo"
+                                            control={control}
+                                            defaultValue=""
                                         />
 
                                         <Controller
@@ -625,7 +638,7 @@ const UserRegistration = (props) => {
 
                                         <ControlledAutocomplete
                                             className="mb-4 w-full"
-                                            options={[{ id: "x", typeName: "Lise" }, { id: "y", typeName: "Üniversite" }, { id: "z", typeName: "Yüksek Lisans" }]}
+                                            options={educationStatus}
                                             control={control}
                                             name="education"
                                             defaultValue={null}
@@ -645,11 +658,11 @@ const UserRegistration = (props) => {
 
                                         <ControlledAutocomplete
                                             className="mb-4 w-full"
-                                            options={[{ id: "x", typeName: "İngilizce" }, { id: "y", typeName: "Almanca" }, { id: "z", typeName: "Fransızca" }]}
+                                            options={foreignLanguageList}
                                             control={control}
                                             name="foreignLanguage"
                                             defaultValue={null}
-                                            getOptionLabel={(option) => option.typeName}
+                                            getOptionLabel={(option) => option.data.typeName}
                                             getOptionSelected={(option, value) => option.id === value.id}
                                             required={true}
                                             renderInput={(params) => (
@@ -684,11 +697,11 @@ const UserRegistration = (props) => {
 
                                 <ControlledAutocomplete
                                     className="mb-4 w-full"
-                                    options={[{ id: "x", typeName: "Polis" }, { id: "y", typeName: "Doktor" }]}
+                                    options={jobList}
                                     control={control}
                                     name="job"
                                     defaultValue={null}
-                                    getOptionLabel={(option) => option.typeName}
+                                    getOptionLabel={(option) => option.data.typeName}
                                     getOptionSelected={(option, value) => option.id === value.id}
                                     renderInput={(params) => (
                                         <TextField
@@ -715,5 +728,9 @@ const UserRegistration = (props) => {
 
 export default connect(null, {
     registerUser,
-    getLastUserId
+    getLastId,
+    getUserTypeList,
+    getDistrictList,
+    getForeignLanguageList,
+    getJobList
 })(UserRegistration)

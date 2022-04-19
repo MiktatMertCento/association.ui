@@ -47,7 +47,6 @@ const EditUser = (props) => {
                 return moment(data.createdAt).format('MM/DD/YYYY')
             }, minWidth: 130, editable: false, sortable: true, filter: true
         },
-        { headerName: "Şehir", field: "data.liveCity.typeName", minWidth: 130, editable: false, sortable: true, filter: true },
         { headerName: "Düzenle", field: "edit", cellRenderer: EditUserDialog, cellRendererParams: { getUserList: getParameters }, minWidth: 130, editable: false, sortable: false, filter: false },
         { headerName: "Sil", field: "delete", cellRenderer: DeleteUserDialog, cellRendererParams: { getUserList: getParameters }, minWidth: 130, editable: false, sortable: false, filter: false },
     ];

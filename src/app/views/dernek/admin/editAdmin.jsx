@@ -42,7 +42,6 @@ const EditAdmin = (props) => {
         { headerName: "Üye Numarası", field: "data.registerNo", minWidth: 130, editable: false, sortable: true, filter: true },
         { headerName: "TC No", field: "data.idNo", minWidth: 130, editable: false, sortable: true, filter: true },
         { headerName: "Adı Soyadı", valueGetter: (params) => params.data.data.name + " " + params.data.data.surname, minWidth: 130, editable: false, sortable: true, filter: true },
-        { headerName: "Şehir", field: "data.city.typeName", minWidth: 130, editable: false, sortable: true, filter: true },
         { headerName: "Düzenle", field: "edit", cellRenderer: EditAdminDialog, cellRendererParams: { getAdminList: getParameters }, minWidth: 130, editable: false, sortable: false, filter: false },
         { headerName: "Sil", field: "delete", cellRenderer: DeleteAdminDialog, cellRendererParams: { getAdminList: getParameters }, minWidth: 130, editable: false, sortable: false, filter: false },
     ];

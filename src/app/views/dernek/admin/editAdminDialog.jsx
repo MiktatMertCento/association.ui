@@ -72,24 +72,6 @@ const EditAdminDialog = (props) => {
                                     defaultValue={admin.idNo}
                                 />
 
-                                <ControlledAutocomplete
-                                    className="mb-4 w-full"
-                                    options={[{ id: "x", typeName: "Gaziantep" }, { id: "y", typeName: "Ankara" }]}
-                                    control={control}
-                                    name="city"
-                                    defaultValue={admin.city}
-                                    getOptionLabel={(option) => option.typeName}
-                                    getOptionSelected={(option, value) => option.id === value.id}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            variant="outlined"
-                                            label="İl"
-                                            type="text"
-                                            error={!!errors.birthCity}
-                                        />
-                                    )}
-                                />
                             </Grid>
 
                             <Grid item lg={6} md={6} sm={12} xs={12}>
@@ -126,25 +108,25 @@ const EditAdminDialog = (props) => {
                                     rules={{ required: true }}
                                     defaultValue={admin.surname}
                                 />
-
-                                <Controller
-                                    render={({ field }) =>
-                                        <TextField
-                                            {...field}
-                                            className="mb-4 w-full"
-                                            variant="outlined"
-                                            label="Şifresi"
-                                            type="text"
-                                            error={!!errors.password}
-                                        />
-                                    }
-                                    name="password"
-                                    control={control}
-                                    rules={{ required: false }}
-                                    defaultValue=""
-                                />
                             </Grid>
                         </Grid>
+                        
+                        <Controller
+                            render={({ field }) =>
+                                <TextField
+                                    {...field}
+                                    className="mb-4 w-full"
+                                    variant="outlined"
+                                    label="Şifresi"
+                                    type="text"
+                                    error={!!errors.password}
+                                />
+                            }
+                            name="password"
+                            control={control}
+                            rules={{ required: false }}
+                            defaultValue=""
+                        />
                     </DialogContent>
                     <DialogActions>
                         <Button variant="outlined" color="primary" onClick={() => setOpen(false)}>

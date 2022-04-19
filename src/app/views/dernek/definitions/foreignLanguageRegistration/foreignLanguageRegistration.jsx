@@ -1,39 +1,48 @@
-import { Button, Icon, IconButton, TextField, Tooltip } from '@material-ui/core';
+import { Button, Icon, TextField, } from '@material-ui/core';
 import { AgGridReact } from 'ag-grid-react';
-import { Breadcrumb, SimpleCard } from 'app/components';
+import { Breadcrumb, MatxLoading, SimpleCard } from 'app/components';
 import useSettings from 'app/hooks/useSettings';
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form';
-
-function EditDialog(props) {
-  return (
-    <div>
-      <Tooltip title="Düzenle" placement="top">
-        <IconButton onClick={() => console.log(props)}>
-          <Icon style={{ color: 'orange' }}>edit</Icon>
-        </IconButton>
-      </Tooltip>
-    </div>
-  )
-}
-
-function DeleteDialog() {
-  return (
-    <div>
-      <Tooltip title="Sil" placement="top">
-        <IconButton onClick={() => console.log("edit user")}>
-          <Icon style={{ color: 'red' }}>delete</Icon>
-        </IconButton>
-      </Tooltip>
-    </div>
-  )
-}
+import { registerForeignLanguage, getForeignLanguageList, getLastId } from 'app/services/service';
+import { connect } from 'react-redux';
+import { ServiceCalling } from 'app/services/serviceCalling';
+import EditForeignLanguageDialog from './foreignLanguageEditDialog';
+import DeleteForeignLanguageDialog from './foreignLanguageDeleteDialog';
 
 
-export default function ForeignLanguageRegistration() {
-  const { control, formState: { errors } } = useForm();
+function ForeignLanguageRegistration(props) {
+  const { control, formState: { errors }, setValue, handleSubmit, reset } = useForm();
   const { settings } = useSettings();
   const gridRef = useRef();
+  const [foreignLanguage, setForeignLanguage] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  let defaultValues = {
+    registerNo: '',
+    typeName: '',
+  }
+
+  const getParameters = useCallback(
+    async (isSaved) => {
+      let lastUserId = await ServiceCalling.getLastId(props, 'foreignLanguages');
+      setValue("registerNo", parseInt(lastUserId) + 1)
+
+      let foreignLanguageList_ = await ServiceCalling.getForeignLanguageList(props);
+      setForeignLanguage(foreignLanguageList_)
+
+      if (!isSaved) {
+
+      }
+
+      setIsLoading(false);
+    },
+    [props, setValue]
+  );
+
+  useEffect(() => {
+    getParameters();
+  }, [getParameters])
 
   const defaultColDef = useMemo(() => {
     return {
@@ -47,87 +56,103 @@ export default function ForeignLanguageRegistration() {
     };
   }, [])
 
-  const genelColumnDefinitionOfSchedule = [
-    { headerName: "Yabancı Dil Numarası", field: "registerNo", minWidth: 130, editable: false, sortable: true, filter: true },
-    { headerName: "Yabancı Dil Adı", field: "registerName", minWidth: 130, editable: false, sortable: true, filter: true },
-    { headerName: "Düzenle", field: "edit", cellRenderer: EditDialog, minWidth: 130, editable: false, sortable: false, filter: false },
-    { headerName: "Sil", field: "delete", cellRenderer: DeleteDialog, minWidth: 130, editable: false, sortable: false, filter: false },
-  ];
 
-  const [usersRow, setUsersRow] = useState([
-    {
-      registerNo: "1",
-      registerName: "Yabancı Dil 1",
-    },
-    {
-      registerNo: "2",
-      registerName: "Yabancı Dil 2",
-    },
-    {
-      registerNo: "3",
-      registerName: "Yabancı Dil 3",
-    },
-  ]);
+  const genelColumnDefinitionOfSchedule = [
+    { headerName: "Yabancı Dil Numarası", field: "data.registerNo", minWidth: 130, editable: false, sortable: true, filter: true },
+    { headerName: "Yabancı Dil Adı", field: "data.typeName", minWidth: 130, editable: false, sortable: true, filter: true },
+    { headerName: "Düzenle", field: "edit", cellRenderer: EditForeignLanguageDialog, cellRendererParams: { getParameters: getParameters }, minWidth: 130, editable: false, sortable: false, filter: false },
+    { headerName: "Sil", field: "delete", cellRenderer: DeleteForeignLanguageDialog, cellRendererParams: { getParameters: getParameters }, minWidth: 130, editable: false, sortable: false, filter: false },
+  ];
 
   return (
     <div className="m-sm-30">
-      <div className="mb-sm-30">
-        <Breadcrumb
-          routeSegments={[
-            { name: settings.brandName, path: '/' },
-            { name: 'Yabancı Dil Tanımlama' },
-          ]}
-        />
-      </div>
+      {
+        isLoading
+          ? <MatxLoading />
+          : <div>
+            <div className="mb-sm-30">
+              <Breadcrumb
+                routeSegments={[
+                  { name: settings.brandName, path: '/' },
+                  { name: 'Yabancı Dil Tanımlama' },
+                ]}
+              />
+            </div>
 
-      <div>
-        <SimpleCard title="Yabancı Dil Kayıt">
-          <form>
-            <Controller
-              render={({ field }) =>
-                <TextField
-                  {...field}
-                  className="mb-4 w-full"
-                  variant="outlined"
-                  label="Yabancı Dil Adı"
-                  type="text"
-                  error={!!errors.lessonname}
-                />
-              }
-              name="lessonname"
-              control={control}
-              rules={{ required: true }}
-              defaultValue=""
-            />
+            <div>
+              <SimpleCard title="Yabancı Dil Kayıt">
+                <form onSubmit={handleSubmit(job => props.registerForeignLanguage(job, () => { reset(defaultValues); getParameters(); }, () => { }))}>
+                  <Controller
+                    render={({ field }) =>
+                      <TextField
+                        {...field}
+                        className="mb-4 w-full"
+                        variant="outlined"
+                        label="Yabancı Dil Numarası"
+                        type="text"
+                        disabled
+                        error={!!errors.registerNo}
+                      />
+                    }
+                    name="registerNo"
+                    control={control}
+                    rules={{ required: true }}
+                    defaultValue=""
+                  />
 
-            <Button color="primary" variant="contained" type="submit">
-              <Icon>save</Icon>
-              <span className="pl-2 capitalize">Kayıt Et</span>
-            </Button>
-          </form>
-        </SimpleCard>
+                  <Controller
+                    render={({ field }) =>
+                      <TextField
+                        {...field}
+                        className="mb-4 w-full"
+                        variant="outlined"
+                        label="Yabancı Dil Adı"
+                        type="text"
+                        error={!!errors.typeName}
+                      />
+                    }
+                    name="typeName"
+                    control={control}
+                    rules={{ required: true }}
+                    defaultValue=""
+                  />
 
-        <div className="py-2" />
+                  <Button color="primary" variant="contained" type="submit">
+                    <Icon>save</Icon>
+                    <span className="pl-2 capitalize">Kayıt Et</span>
+                  </Button>
+                </form>
+              </SimpleCard>
 
-        <SimpleCard title="Yabancı Diller">
-          <div className="ag-theme-alpine" style={{ height: 370, width: '100%' }}>
-            <AgGridReact
-              columnDefs={genelColumnDefinitionOfSchedule}
-              rowData={usersRow}
-              defaultColDef={defaultColDef}
-              enableCellChangeFlash={true}
-              enableCellTextSelection={true}
-              enableCellExpressions={true}
-              enableGroupEdit={true}
-              enableRangeHandle={true}
-              rowSelection={'multiple'}
-              ref={gridRef}
-              animateRows={true}
-            >
-            </AgGridReact>
+              <div className="py-2" />
+
+              <SimpleCard title="Üye Tipleri">
+                <div className="ag-theme-alpine" style={{ height: 370, width: '100%' }}>
+                  <AgGridReact
+                    columnDefs={genelColumnDefinitionOfSchedule}
+                    rowData={foreignLanguage}
+                    defaultColDef={defaultColDef}
+                    enableCellChangeFlash={true}
+                    enableCellTextSelection={true}
+                    enableCellExpressions={true}
+                    enableGroupEdit={true}
+                    enableRangeHandle={true}
+                    rowSelection={'multiple'}
+                    ref={gridRef}
+                    animateRows={true}
+                  >
+                  </AgGridReact>
+                </div>
+              </SimpleCard>
+            </div>
           </div>
-        </SimpleCard>
-      </div>
+      }
     </div>
   )
 }
+
+export default connect(null, {
+  registerForeignLanguage,
+  getLastId,
+  getForeignLanguageList
+})(ForeignLanguageRegistration);

@@ -49,36 +49,16 @@ const headenglishRoutes = [
         component: React.lazy(() => import('./definitions/userTypeRegistration/userTypeRegistration')),
     },
     {
-        path: '/tanimlamalar/il',
-        component: React.lazy(() => import('./definitions/cityRegistration/cityRegistration')),
-    },
-    {
-        path: '/tanimlamalar/ilce',
-        component: React.lazy(() => import('./definitions/countyRegistration/countyRegistration')),
-    },
-    {
         path: '/tanimlamalar/koy-mahalle',
         component: React.lazy(() => import('./definitions/districtRegistration/districtRegistration')),
     },
     {
         path: '/tanimlamalar/meslek',
-        component: React.lazy(() => import('./definitions/professionRegistration/professionRegistration')),
+        component: React.lazy(() => import('./definitions/jobRegistration/jobRegistration')),
     },
     {
         path: '/tanimlamalar/faaliyet-turu',
         component: React.lazy(() => import('./definitions/activityKindRegistration/activityKindRegistration')),
-    },
-    {
-        path: '/tanimlamalar/kan-grubu',
-        component: React.lazy(() => import('./definitions/bloodGroupRegistration/bloodGroupRegistration')),
-    },
-    {
-        path: '/tanimlamalar/medeni-hal',
-        component: React.lazy(() => import('./definitions/maritalStatusRegistration/maritalStatusRegistration')),
-    },
-    {
-        path: '/tanimlamalar/ogrenim-durumu',
-        component: React.lazy(() => import('./definitions/educationStatusRegistration/educationStatusRegistration')),
     },
     {
         path: '/tanimlamalar/yabanci-dil',
