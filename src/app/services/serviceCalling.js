@@ -18,7 +18,32 @@ export const ServiceCalling = {
                     })
                 },
                 ({ ERROR_MESSAGE }) => {
-                    reject(new Error(ERROR_MESSAGE))
+                    reject(ERROR_MESSAGE)
+                }
+            );
+        })
+    },
+
+    getLastFirmId: (props) => {
+        return new Promise((response, reject) => {
+            props.getLastFirmId(
+                ({ lastUserId }) => {
+                    const status = new Promise(
+                        (resolve, failed) => {
+                            try {
+                                resolve('Operation Start')
+                            }
+                            catch (error) {
+                                failed('Operation failed')
+                            }
+                        }
+                    );
+                    status.then(() => {
+                        response(lastUserId);
+                    })
+                },
+                ({ ERROR_MESSAGE }) => {
+                    reject(ERROR_MESSAGE)
                 }
             );
         })
@@ -43,7 +68,7 @@ export const ServiceCalling = {
                     })
                 },
                 ({ ERROR_MESSAGE }) => {
-                    reject(new Error(ERROR_MESSAGE))
+                    reject(ERROR_MESSAGE)
                 }
             );
         })
@@ -68,7 +93,32 @@ export const ServiceCalling = {
                     })
                 },
                 ({ ERROR_MESSAGE }) => {
-                    reject(new Error(ERROR_MESSAGE))
+                    reject(ERROR_MESSAGE)
+                }
+            );
+        })
+    },
+
+    getFirmList: (props) => {
+        return new Promise((response, reject) => {
+            props.getFirmList(
+                ({ firmList }) => {
+                    const status = new Promise(
+                        (resolve, failed) => {
+                            try {
+                                resolve('Operation Start')
+                            }
+                            catch (error) {
+                                failed('Operation failed')
+                            }
+                        }
+                    );
+                    status.then(() => {
+                        response(firmList);
+                    })
+                },
+                ({ ERROR_MESSAGE }) => {
+                    reject(ERROR_MESSAGE)
                 }
             );
         })

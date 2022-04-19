@@ -35,6 +35,16 @@ export const getLastUserId = (SuccessOperation, FailedOperation) => {
     }
 }
 
+export const getLastFirmId = (SuccessOperation, FailedOperation) => {
+    return () => {
+        db.collection('firm').orderBy('registerNo', 'desc').limit(1).get().then((querySnapshot) => {
+            SuccessOperation({ lastUserId: querySnapshot.docs[0].data().registerNo })
+        }).catch((error) => {
+            FailedOperation(error);
+        });
+    }
+}
+
 //Admin İşlemleri
 
 export const getAdminList = (SuccessOperation, FailedOperation) => {
@@ -100,23 +110,51 @@ export const registerAdmin = (admin, SuccessOperation, FailedOperation) => {
     }
 }
 
-export const updateAdmin = (admin, adminId, SuccessOperation, FailedOperation) => {
+export const updateAdmin = (admin, oldAdmin, adminId, SuccessOperation, FailedOperation) => {
     return () => {
-        const REF_DATABASE = db.collection('users').doc(adminId);
+        if (tcNoValidate(admin.idNo)) {
+            if (admin.idNo !== oldAdmin.idNo) {
+                db.collection("users").where("idNo", "==", admin.idNo).where('status', '==', 1).get().then((querySnapshot) => {
+                    if (!querySnapshot.empty) {
+                        SnackbarUtils.error('Bu TC Kimlik Numarasına sahip bir kullanıcı zaten var!');
+                    } else {
+                        const REF_DATABASE = db.collection('users').doc(adminId);
 
-        REF_DATABASE.update(Object.assign({
-            idNo: admin.idNo,
-            city: admin.city,
-            name: admin.name,
-            surname: admin.surname,
-            updateDate: new Date(),
-        }, admin.password !== "" && { password: sha256(admin.password) })).then(() => {
-            SnackbarUtils.success('Başarıyla güncellendi!');
-            SuccessOperation({});
-        }).catch(error => {
-            console.log("================>I'm in error<================", error)
-            FailedOperation({ errorMsg: error });
-        });
+                        REF_DATABASE.update(Object.assign({
+                            idNo: admin.idNo,
+                            city: admin.city,
+                            name: admin.name,
+                            surname: admin.surname,
+                            updateDate: new Date(),
+                        }, admin.password !== "" && { password: sha256(admin.password) })).then(() => {
+                            SnackbarUtils.success('Başarıyla güncellendi!');
+                            SuccessOperation({});
+                        }).catch(error => {
+                            console.log("================>I'm in error<================", error)
+                            FailedOperation({ errorMsg: error });
+                        });
+                    }
+                })
+            } else {
+                const REF_DATABASE = db.collection('users').doc(adminId);
+
+                REF_DATABASE.update(Object.assign({
+                    idNo: admin.idNo,
+                    city: admin.city,
+                    name: admin.name,
+                    surname: admin.surname,
+                    updateDate: new Date(),
+                }, admin.password !== "" && { password: sha256(admin.password) })).then(() => {
+                    SnackbarUtils.success('Başarıyla güncellendi!');
+                    SuccessOperation({});
+                }).catch(error => {
+                    console.log("================>I'm in error<================", error)
+                    FailedOperation({ errorMsg: error });
+                });
+            }
+        } else {
+            SnackbarUtils.error('Geçersiz kimlik numarası!');
+        }
     }
 }
 
@@ -245,19 +283,243 @@ export const registerUser = (user, SuccessOperation, FailedOperation) => {
     }
 }
 
-export const updateUser = (admin, adminId, SuccessOperation, FailedOperation) => {
+export const updateUser = (user, oldUser, userId, SuccessOperation, FailedOperation) => {
+    return () => {
+        if (tcNoValidate(user.idNo)) {
+            if (user.idNo !== oldUser.idNo) {
+                db.collection('users').where("idNo", "==", user.idNo).where('status', '==', 1).get().then((querySnapshot) => {
+                    if (querySnapshot.empty) {
+                        if (user.profilePicture !== undefined) {
+                            if (user.profilePicture.size < 5242880) {
+                                const fileName = `${uuidv4()}.jpg`;
+                                const storageRef = storage.ref(`ProfilePictures/${fileName}`);
+                                storageRef.put(user.profilePicture).then((snapshot) => {
+                                    snapshot.ref.getDownloadURL().then((url) => {
+                                        const refDatabase = db.collection('users').doc(userId);
+                                        refDatabase.update(Object.assign({
+                                            registerNo: user.registerNo,
+                                            registerDate: user.registerDate,
+                                            userPosition: user.userPosition,
+                                            idNo: user.idNo,
+                                            name: user.name,
+                                            surname: user.surname,
+                                            fatherName: user.fatherName,
+                                            motherName: user.motherName,
+                                            placeOfBirth: user.placeOfBirth,
+                                            birthday: user.birthday,
+                                            birthCity: user.birthCity,
+                                            birthCounty: user.birthCounty,
+                                            birthDistrict: user.birthDistrict,
+                                            maritalStatus: user.maritalStatus,
+                                            bloodGroup: user.bloodGroup,
+                                            profilePicture: url,
+                                            liveCity: user.liveCity,
+                                            liveCounty: user.liveCounty,
+                                            liveDistrict: user.liveDistrict,
+                                            liveStreet: user.liveStreet,
+                                            liveBuildingNo: user.liveBuildingNo,
+                                            email: user.email,
+                                            education: user.education,
+                                            foreignLanguage: user.foreignLanguage,
+                                            mobilePhone: user.mobilePhone,
+                                            status: 1,
+                                            userType: "user",
+                                        },
+                                            user.businessPhone !== "" && { businessPhone: user.businessPhone },
+                                            user.businessAddress !== "" && { businessAddress: user.businessAddress },
+                                            user.job !== "" && { job: user.job },
+                                            user.description !== "" && { description: user.description },
+                                            user.facebook !== "" && { facebook: user.facebook },
+                                            user.twitter !== "" && { twitter: user.twitter },
+                                            user.instagram !== "" && { instagram: user.instagram },
+                                        )).then(() => {
+                                            SnackbarUtils.success('Başarıyla güncellendi!');
+                                            SuccessOperation({});
+                                        }
+                                        ).catch(error => {
+                                            console.log("================>I'm in error<================", error)
+                                            FailedOperation({ errorMsg: error });
+                                        }
+                                        );
+                                    });
+                                });
+                            } else {
+                                SnackbarUtils.error("Seçtiğiniz resim 5mb boyutundan büyük!");
+                            }
+                        } else {
+                            const refDatabase = db.collection('users').doc(userId);
+                            refDatabase.update(Object.assign({
+                                registerNo: user.registerNo,
+                                registerDate: user.registerDate,
+                                userPosition: user.userPosition,
+                                idNo: user.idNo,
+                                name: user.name,
+                                surname: user.surname,
+                                fatherName: user.fatherName,
+                                motherName: user.motherName,
+                                placeOfBirth: user.placeOfBirth,
+                                birthday: user.birthday,
+                                birthCity: user.birthCity,
+                                birthCounty: user.birthCounty,
+                                birthDistrict: user.birthDistrict,
+                                maritalStatus: user.maritalStatus,
+                                bloodGroup: user.bloodGroup,
+                                liveCity: user.liveCity,
+                                liveCounty: user.liveCounty,
+                                liveDistrict: user.liveDistrict,
+                                liveStreet: user.liveStreet,
+                                liveBuildingNo: user.liveBuildingNo,
+                                email: user.email,
+                                education: user.education,
+                                foreignLanguage: user.foreignLanguage,
+                                mobilePhone: user.mobilePhone,
+                                status: 1,
+                                userType: "user",
+                            },
+                                user.businessPhone !== "" && { businessPhone: user.businessPhone },
+                                user.businessAddress !== "" && { businessAddress: user.businessAddress },
+                                user.job !== "" && { job: user.job },
+                                user.description !== "" && { description: user.description },
+                                user.facebook !== "" && { facebook: user.facebook },
+                                user.twitter !== "" && { twitter: user.twitter },
+                                user.instagram !== "" && { instagram: user.instagram },
+                            )).then(() => {
+                                SnackbarUtils.success('Başarıyla güncellendi!');
+                                SuccessOperation({});
+                            }
+                            ).catch(error => {
+                                console.log("================>I'm in error<================", error)
+                                FailedOperation({ errorMsg: error });
+                            });
+                        }
+                    } else {
+                        SnackbarUtils.error('Bu TC Kimlik Numarasına sahip bir kullanıcı zaten var!');
+                        FailedOperation({ errorMsg: 'Bu TC Kimlik Numarasına sahip bir kullanıcı zaten var!' });
+                    }
+                })
+            } else {
+                if (user.profilePicture !== undefined) {
+                    if (user.profilePicture.size < 5242880) {
+                        const fileName = `${uuidv4()}.jpg`;
+                        const storageRef = storage.ref(`ProfilePictures/${fileName}`);
+                        storageRef.put(user.profilePicture).then((snapshot) => {
+                            snapshot.ref.getDownloadURL().then((url) => {
+                                const refDatabase = db.collection('users').doc(userId);
+                                refDatabase.update(Object.assign({
+                                    registerNo: user.registerNo,
+                                    registerDate: user.registerDate,
+                                    userPosition: user.userPosition,
+                                    idNo: user.idNo,
+                                    name: user.name,
+                                    surname: user.surname,
+                                    fatherName: user.fatherName,
+                                    motherName: user.motherName,
+                                    placeOfBirth: user.placeOfBirth,
+                                    birthday: user.birthday,
+                                    birthCity: user.birthCity,
+                                    birthCounty: user.birthCounty,
+                                    birthDistrict: user.birthDistrict,
+                                    maritalStatus: user.maritalStatus,
+                                    bloodGroup: user.bloodGroup,
+                                    profilePicture: url,
+                                    liveCity: user.liveCity,
+                                    liveCounty: user.liveCounty,
+                                    liveDistrict: user.liveDistrict,
+                                    liveStreet: user.liveStreet,
+                                    liveBuildingNo: user.liveBuildingNo,
+                                    email: user.email,
+                                    education: user.education,
+                                    foreignLanguage: user.foreignLanguage,
+                                    mobilePhone: user.mobilePhone,
+                                    status: 1,
+                                    userType: "user",
+                                },
+                                    user.businessPhone !== "" && { businessPhone: user.businessPhone },
+                                    user.businessAddress !== "" && { businessAddress: user.businessAddress },
+                                    user.job !== "" && { job: user.job },
+                                    user.description !== "" && { description: user.description },
+                                    user.facebook !== "" && { facebook: user.facebook },
+                                    user.twitter !== "" && { twitter: user.twitter },
+                                    user.instagram !== "" && { instagram: user.instagram },
+                                )).then(() => {
+                                    SnackbarUtils.success('Başarıyla güncellendi!');
+                                    SuccessOperation({});
+                                }
+                                ).catch(error => {
+                                    console.log("================>I'm in error<================", error)
+                                    FailedOperation({ errorMsg: error });
+                                }
+                                );
+                            });
+                        });
+                    } else {
+                        SnackbarUtils.error("Seçtiğiniz resim 5mb boyutundan büyük!");
+                    }
+                } else {
+                    const refDatabase = db.collection('users').doc(userId);
+                    refDatabase.update(Object.assign({
+                        registerNo: user.registerNo,
+                        registerDate: user.registerDate,
+                        userPosition: user.userPosition,
+                        idNo: user.idNo,
+                        name: user.name,
+                        surname: user.surname,
+                        fatherName: user.fatherName,
+                        motherName: user.motherName,
+                        placeOfBirth: user.placeOfBirth,
+                        birthday: user.birthday,
+                        birthCity: user.birthCity,
+                        birthCounty: user.birthCounty,
+                        birthDistrict: user.birthDistrict,
+                        maritalStatus: user.maritalStatus,
+                        bloodGroup: user.bloodGroup,
+                        liveCity: user.liveCity,
+                        liveCounty: user.liveCounty,
+                        liveDistrict: user.liveDistrict,
+                        liveStreet: user.liveStreet,
+                        liveBuildingNo: user.liveBuildingNo,
+                        email: user.email,
+                        education: user.education,
+                        foreignLanguage: user.foreignLanguage,
+                        mobilePhone: user.mobilePhone,
+                        status: 1,
+                        userType: "user",
+                    },
+                        user.businessPhone !== "" && { businessPhone: user.businessPhone },
+                        user.businessAddress !== "" && { businessAddress: user.businessAddress },
+                        user.job !== "" && { job: user.job },
+                        user.description !== "" && { description: user.description },
+                        user.facebook !== "" && { facebook: user.facebook },
+                        user.twitter !== "" && { twitter: user.twitter },
+                        user.instagram !== "" && { instagram: user.instagram },
+                    )).then(() => {
+                        SnackbarUtils.success('Başarıyla güncellendi!');
+                        SuccessOperation({});
+                    }
+                    ).catch(error => {
+                        console.log("================>I'm in error<================", error)
+                        FailedOperation({ errorMsg: error });
+                    });
+                }
+            }
+        } else {
+            SnackbarUtils.error('Geçersiz kimlik numarası!');
+        }
+    }
+}
+
+export const deleteUser = (adminId, reason, SuccessOperation, FailedOperation) => {
     return () => {
         const REF_DATABASE = db.collection('users').doc(adminId);
 
-        REF_DATABASE.update(Object.assign({
-            registerNo: admin.registerNo,
-            idNo: admin.idNo,
-            city: admin.city,
-            name: admin.name,
-            surname: admin.surname,
-            updateDate: new Date(),
-        }, admin.password !== "" && { password: sha256(admin.password) })).then(() => {
-            SnackbarUtils.success('Başarıyla güncellendi!');
+        REF_DATABASE.update({
+            status: 0,
+            deleteInfo: {
+                deleteDate: reason.exitDate,
+                deleteReason: reason.exitReason
+            }
+        }).then(() => {
+            SnackbarUtils.success('Başarıyla silindi!');
             SuccessOperation({});
         }).catch(error => {
             console.log("================>I'm in error<================", error)
@@ -266,9 +528,151 @@ export const updateUser = (admin, adminId, SuccessOperation, FailedOperation) =>
     }
 }
 
-export const deleteUser = (adminId, reason, SuccessOperation, FailedOperation) => {
+//Firma işlemleri
+export const getFirmList = (SuccessOperation, FailedOperation) => {
     return () => {
-        const REF_DATABASE = db.collection('users').doc(adminId);
+        const REF_DATABASE = db.collection('firms').where('status', '==', 1).orderBy("registerDate", 'desc');
+
+        REF_DATABASE.get().then(function (querySnapshot) {
+            const firmList = [];
+            querySnapshot.forEach(function (doc) {
+                firmList.push({
+                    id: doc.id,
+                    data: doc.data()
+                })
+            });
+            SuccessOperation({ firmList: firmList });
+        }).catch(function (error) {
+            console.log("================>I'm in error<================", error)
+            FailedOperation({ errorMsg: error });
+        });
+    }
+}
+
+export const registerFirm = (firm, SuccessOperation, FailedOperation) => {
+    return () => {
+        if (firm.profilePicture !== undefined) {
+            if (firm.profilePicture.size < 5242880) {
+                const fileName = `${uuidv4()}.jpg`;
+                const storageRef = storage.ref(`FirmPhotos/${fileName}`);
+                storageRef.put(firm.profilePicture).then((snapshot) => {
+                    snapshot.ref.getDownloadURL().then((url) => {
+                        const refDatabase = db.collection('firms');
+                        console.log(url)
+                        refDatabase.add(Object.assign({
+                            registerNo: firm.registerNo,
+                            registerDate: firm.registerDate,
+                            taxNo: firm.taxNo,
+                            firmName: firm.firmName,
+                            admin1: firm.admin1,
+                            businessPhone: firm.businessPhone,
+                            profileImage: url,
+                            city: firm.city,
+                            county: firm.county,
+                            district: firm.district,
+                            street: firm.street,
+                            buildingNumber: firm.buildingNumber,
+                            mobilePhone: firm.mobilePhone,
+                            status: 1,
+                        },
+                            firm.webAddress !== "" && { webAddress: firm.webAddress },
+                            firm.admin2 !== null && { admin2: firm.admin2 },
+                            firm.admin3 !== null && { admin3: firm.admin3 },
+                            firm.description !== "" && { description: firm.description },
+                        )).then(() => {
+                            SnackbarUtils.success('Başarıyla eklendi!');
+                            SuccessOperation({});
+                        }).catch(error => {
+                            console.log("================>I'm in error<================", error)
+                            FailedOperation({ errorMsg: error });
+                        });
+                    });
+                });
+            } else {
+                SnackbarUtils.error("Seçtiğiniz resim 5mb boyutundan büyük!");
+            }
+        } else {
+            SnackbarUtils.error("Öncelikle bir profil fotoğrafı seçmelisiniz!");
+        }
+    }
+}
+
+export const updateFirm = (firm, firmId, SuccessOperation, FailedOperation) => {
+    return () => {
+        if (firm.profilePicture !== undefined) {
+            if (firm.profilePicture.size < 5242880) {
+                const fileName = `${uuidv4()}.jpg`;
+                const storageRef = storage.ref(`FirmPhotos/${fileName}`);
+                storageRef.put(firm.profilePicture).then((snapshot) => {
+                    snapshot.ref.getDownloadURL().then((url) => {
+                        const refDatabase = db.collection('firms').doc(firmId);
+                        refDatabase.update(Object.assign({
+                            registerNo: firm.registerNo,
+                            registerDate: firm.registerDate,
+                            taxNo: firm.taxNo,
+                            firmName: firm.firmName,
+                            admin1: firm.admin1,
+                            businessPhone: firm.businessPhone,
+                            profileImage: url,
+                            city: firm.city,
+                            county: firm.county,
+                            district: firm.district,
+                            street: firm.street,
+                            buildingNumber: firm.buildingNumber,
+                            mobilePhone: firm.mobilePhone,
+                            status: 1,
+                        },
+                            firm.webAddress !== "" && { webAddress: firm.webAddress },
+                            firm.admin2 !== null && { admin2: firm.admin2 },
+                            firm.admin3 !== null && { admin3: firm.admin3 },
+                            firm.description !== "" && { description: firm.description },
+                        )).then(() => {
+                            SnackbarUtils.success('Başarıyla eklendi!');
+                            SuccessOperation({});
+                        }).catch(error => {
+                            console.log("================>I'm in error<================", error)
+                            FailedOperation({ errorMsg: error });
+                        });
+                    });
+                });
+            } else {
+                SnackbarUtils.error("Seçtiğiniz resim 5mb boyutundan büyük!");
+            }
+        } else {
+            const refDatabase = db.collection('firms').doc(firmId);
+            refDatabase.update(Object.assign({
+                registerNo: firm.registerNo,
+                registerDate: firm.registerDate,
+                taxNo: firm.taxNo,
+                firmName: firm.firmName,
+                admin1: firm.admin1,
+                businessPhone: firm.businessPhone,
+                city: firm.city,
+                county: firm.county,
+                district: firm.district,
+                street: firm.street,
+                buildingNumber: firm.buildingNumber,
+                mobilePhone: firm.mobilePhone,
+                status: 1,
+            },
+                firm.webAddress !== "" && { webAddress: firm.webAddress },
+                firm.admin2 !== null && { admin2: firm.admin2 },
+                firm.admin3 !== null && { admin3: firm.admin3 },
+                firm.description !== "" && { description: firm.description },
+            )).then(() => {
+                SnackbarUtils.success('Başarıyla eklendi!');
+                SuccessOperation({});
+            }).catch(error => {
+                console.log("================>I'm in error<================", error)
+                FailedOperation({ errorMsg: error });
+            });
+        }
+    }
+}
+
+export const deleteFirm = (firmId, reason, SuccessOperation, FailedOperation) => {
+    return () => {
+        const REF_DATABASE = db.collection('firms').doc(firmId);
 
         REF_DATABASE.update({
             status: 0,

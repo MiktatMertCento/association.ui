@@ -8,6 +8,7 @@ import useSettings from 'app/hooks/useSettings';
 import { registerAdmin, getLastUserId } from 'app/services/service';
 import { ServiceCalling } from '../../../services/serviceCalling';
 
+
 const RegisterAdmin = (props) => {
     const { settings } = useSettings()
     const [isLoading, setIsLoading] = useState(true)
@@ -18,8 +19,8 @@ const RegisterAdmin = (props) => {
             let lastUserId = await ServiceCalling.getLastUserId(props);
             setValue("registerNo", parseInt(lastUserId) + 1)
 
-            if(!isSaved) {
-                
+            if (!isSaved) {
+
             }
 
             setIsLoading(false);
@@ -55,7 +56,7 @@ const RegisterAdmin = (props) => {
                         />
                     </div>
                     <SimpleCard title="Admin Kayıt">
-                        <form onSubmit={handleSubmit((user) => { props.registerAdmin(user, () => { getParameters(true); reset(defaultValues); }, () => console.log("başarısız")) })}>
+                        <form onSubmit={handleSubmit((user) => { props.registerAdmin(user, () => { reset(defaultValues); getParameters(true); }, () => console.log("başarısız")) })}>
                             <Grid container spacing={6}>
                                 <Grid item lg={6} md={6} sm={12} xs={12}>
                                     <Controller
@@ -164,8 +165,11 @@ const RegisterAdmin = (props) => {
                                         rules={{ required: true }}
                                         defaultValue=""
                                     />
+
+
                                 </Grid>
                             </Grid>
+
 
                             <Button color="primary" variant="contained" type="submit">
                                 <Icon>save</Icon>

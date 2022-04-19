@@ -3,35 +3,11 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { connect } from 'react-redux';
 import useSettings from 'app/hooks/useSettings';
 import { AgGridReact } from 'ag-grid-react';
-import { Icon, IconButton, Tooltip } from '@material-ui/core';
 import { ServiceCalling } from 'app/services/serviceCalling';
 import { getUserList } from '../../../services/service'
 import moment from 'moment'
-
-function EditUserDialog(props) {
-    return (
-        <div>
-            <Tooltip title="Düzenle" placement="top">
-                <IconButton onClick={() => console.log(props)}>
-                    <Icon style={{ color: 'orange' }}>edit</Icon>
-                </IconButton>
-            </Tooltip>
-        </div>
-    )
-}
-
-function DeleteUser() {
-    return (
-        <div>
-            <Tooltip title="Sil" placement="top">
-                <IconButton onClick={() => console.log("edit user")}>
-                    <Icon style={{ color: 'red' }}>delete</Icon>
-                </IconButton>
-            </Tooltip>
-        </div>
-    )
-}
-
+import EditUserDialog from './editUserDialog'
+import DeleteUserDialog from './deleteUserDialog'
 
 const EditUser = (props) => {
     const { settings } = useSettings()
@@ -72,8 +48,8 @@ const EditUser = (props) => {
             }, minWidth: 130, editable: false, sortable: true, filter: true
         },
         { headerName: "Şehir", field: "data.liveCity.typeName", minWidth: 130, editable: false, sortable: true, filter: true },
-        { headerName: "Düzenle", field: "edit", cellRenderer: EditUserDialog, minWidth: 130, editable: false, sortable: false, filter: false },
-        { headerName: "Sil", field: "delete", cellRenderer: DeleteUser, minWidth: 130, editable: false, sortable: false, filter: false },
+        { headerName: "Düzenle", field: "edit", cellRenderer: EditUserDialog, cellRendererParams: { getUserList: getParameters }, minWidth: 130, editable: false, sortable: false, filter: false },
+        { headerName: "Sil", field: "delete", cellRenderer: DeleteUserDialog, cellRendererParams: { getUserList: getParameters }, minWidth: 130, editable: false, sortable: false, filter: false },
     ];
 
     return (
