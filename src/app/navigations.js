@@ -90,14 +90,6 @@ export const navigations = [
                 path: '/tanimlamalar/uye-tipi',
             },
             {
-                name: 'İl Tanımlama',
-                path: '/tanimlamalar/il',
-            },
-            {
-                name: 'İlçe Tanımlama',
-                path: '/tanimlamalar/ilce',
-            },
-            {
                 name: 'Köy/Mahalle Tanımlama',
                 path: '/tanimlamalar/koy-mahalle',
             },
@@ -108,18 +100,6 @@ export const navigations = [
             {
                 name: 'Faaliyet Türü Tanımlama',
                 path: '/tanimlamalar/faaliyet-turu',
-            },
-            {
-                name: 'Kan Grubu Tanımlama',
-                path: '/tanimlamalar/kan-grubu',
-            },
-            {
-                name: 'Medeni Hal Tanımlama',
-                path: '/tanimlamalar/medeni-hal',
-            },
-            {
-                name: 'Öğrenim Durumu Tanımlama',
-                path: '/tanimlamalar/ogrenim-durumu',
             },
             {
                 name: 'Yabanci Dil Tanımlama',

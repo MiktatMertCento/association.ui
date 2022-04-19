@@ -7,6 +7,12 @@ const headenglishRoutes = [
         component: React.lazy(() => import('./homePage/homePage')),
     },
 
+    //profile
+    {
+        path: '/hesabi-duzenle',
+        component: React.lazy(() => import('./profile/editAdminProfile')),
+    },
+
     //üye işlemleri
     {
         path: '/uye-kayit',

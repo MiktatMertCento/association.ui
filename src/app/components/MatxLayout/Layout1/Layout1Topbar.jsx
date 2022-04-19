@@ -154,7 +154,7 @@ const Layout1Topbar = () => {
                                 </Link>
                             </MenuItem>
                             <MenuItem>
-                                <Link className={classes.menuItem} to="/profil">
+                                <Link className={classes.menuItem} to="/hesabi-duzenle">
                                     <Icon> manage_accounts </Icon>
                                     <span className="pl-4"> Hesabı Düzenle </span>
                                 </Link>
