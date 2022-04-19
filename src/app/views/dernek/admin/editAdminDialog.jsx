@@ -31,7 +31,7 @@ const EditAdminDialog = (props) => {
                     aria-labelledby="alert-dialog-title"
                     aria-describedby="alert-dialog-description">
                     <DialogTitle id="alert-dialog-title">
-                        {admin.name} {admin.surname} Düzenle
+                        {admin.name} {admin.surname} İsimli Yöneticiyi Düzenle
                     </DialogTitle>
                     <DialogContent>
 
@@ -150,7 +150,7 @@ const EditAdminDialog = (props) => {
                         <Button variant="outlined" color="primary" onClick={() => setOpen(false)}>
                             Hayır
                         </Button>
-                        <Button variant="contained" color="primary" onClick={handleSubmit((admin) => props.updateAdmin(admin, props.data.id, () => { setOpen(false); props.getAdminList(); }, () => { }))} autoFocus>
+                        <Button variant="contained" color="primary" onClick={handleSubmit((admin) => props.updateAdmin(admin, props.data.data, props.data.id, () => { setOpen(false); props.getAdminList(); }, () => { }))} autoFocus>
                             Evet
                         </Button>
                     </DialogActions>

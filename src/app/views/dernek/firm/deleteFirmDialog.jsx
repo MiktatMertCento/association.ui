@@ -10,10 +10,10 @@ import { Controller, useForm } from 'react-hook-form'
 import DateFnsUtils from '@date-io/date-fns'
 import trLocale from "date-fns/locale/tr";
 import { KeyboardDatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers'
-import { deleteUser } from 'app/services/service'
+import { deleteFirm } from 'app/services/service'
 import { connect } from 'react-redux'
 
-function DeleteUserDialog(props) {
+function DeleteFirmDialog(props) {
     const { handleSubmit, control, formState: { errors } } = useForm();
     const [open, setOpen] = useState(false)
 
@@ -95,7 +95,7 @@ function DeleteUserDialog(props) {
                         <Button variant="outlined" color="primary" onClick={() => setOpen(false)}>
                             Hayır
                         </Button>
-                        <Button variant="contained" color="primary" onClick={handleSubmit(reason => props.deleteUser(props.data.id, reason, () => { setOpen(false); props.getUserList(); }, () => { }))} autoFocus>
+                        <Button variant="contained" color="primary" onClick={handleSubmit(reason => props.deleteFirm(props.data.id, reason, () => { setOpen(false); props.getFirmList(); }, () => { }))} autoFocus>
                             Evet
                         </Button>
                     </DialogActions>
@@ -106,6 +106,6 @@ function DeleteUserDialog(props) {
 }
 
 export default connect(null, {
-    deleteUser
-})(DeleteUserDialog)
+    deleteFirm
+})(DeleteFirmDialog)
 

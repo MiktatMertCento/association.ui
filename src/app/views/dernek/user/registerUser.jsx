@@ -85,7 +85,7 @@ const UserRegistration = (props) => {
                         </div>
                         <SimpleCard title="Üye Kayıt">
                             <form onSubmit={handleSubmit((user) => {
-                                props.registerUser(user, () => reset(defaultValues), () => console.log("başarısız"))
+                                props.registerUser(user, () => { reset(defaultValues); getParameters(); }, () => console.log("başarısız"))
                             })}>
                                 <Grid container spacing={6}>
                                     <Grid item lg={6} md={6} sm={12} xs={12}>
@@ -419,7 +419,7 @@ const UserRegistration = (props) => {
                                                     }
                                                     name="profilePicture"
                                                     control={control}
-                                                    rules={{ required: false }}
+                                                    rules={{ required: true }}
                                                     defaultValue={undefined}
                                                 />
                                             </div>
