@@ -79,8 +79,8 @@
     "yup": "^0.29.3"
   },
   "scripts": {
-    "start": "react-app-rewired --openssl-legacy-provider start",
-    "build": "react-scripts --openssl-legacy-provider build",
+    "start": "react-app-rewired start",
+    "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "ghp": "react-scripts build && gh-pages -d build"

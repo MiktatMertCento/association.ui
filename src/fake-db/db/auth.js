@@ -9,6 +9,7 @@ Mock.onPost('/api/auth/login').reply(async (config) => {
     try {
         const { username, password } = JSON.parse(config.data)
         const query = await db.collection('users').where('idNo', '==', username).where('password', '==', sha256(password)).where('userType', '==', "admin").where('status', "==", 1).get();
+
         if (query.docs.length >= 1) {
             const accessToken = jwt.sign({ userId: query.docs[0].id }, process.env.REACT_APP_JWT_SECRET, {
                 expiresIn: JWT_VALIDITY,
