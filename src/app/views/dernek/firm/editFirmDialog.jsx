@@ -187,7 +187,7 @@ const EditFirmDialog = (props) => {
                                                 name="webAddress"
                                                 control={control}
                                                 rules={{ required: false }}
-                                                defaultValue={firm.webAddress}
+                                                defaultValue={firm.webAddress || ""}
                                             />
 
                                             <ControlledAutocomplete

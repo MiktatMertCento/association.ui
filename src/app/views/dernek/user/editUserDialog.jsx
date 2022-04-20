@@ -671,7 +671,7 @@ const EditUserDialog = (props) => {
                                         options={jobList}
                                         control={control}
                                         name="job"
-                                        defaultValue={jobList.find(x => x.id === user.job)}
+                                        defaultValue={jobList.find(x => x.id === user.job) || null}
                                         getOptionLabel={(option) => option.data.typeName}
                                         getOptionSelected={(option, value) => option.id === value.id}
                                         renderInput={(params) => (

@@ -502,7 +502,7 @@ const UserRegistration = (props) => {
                                                     variant="outlined"
                                                     label="Yaşadığı Mahalle"
                                                     type="text"
-                                                    error={!!errors.birthDistrict}
+                                                    error={!!errors.liveDistrict}
                                                 />
                                             )}
                                         />

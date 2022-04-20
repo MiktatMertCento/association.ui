@@ -273,6 +273,7 @@ export const registerUser = (user, SuccessOperation, FailedOperation) => {
 
 export const updateUser = (user, oldUser, userId, SuccessOperation, FailedOperation) => {
     return () => {
+        console.log("🚀 ~ file: service.js ~ line 275 ~ updateUser ~ user", user)
         if (tcNoValidate(user.idNo)) {
             if (user.idNo !== oldUser.idNo) {
                 db.collection('users').where("idNo", "==", user.idNo).where('status', '==', 1).get().then((querySnapshot) => {
@@ -315,7 +316,7 @@ export const updateUser = (user, oldUser, userId, SuccessOperation, FailedOperat
                                         },
                                             user.businessPhone !== "" && { businessPhone: user.businessPhone },
                                             user.businessAddress !== "" && { businessAddress: user.businessAddress },
-                                            user.job !== "" && { job: user.job.id },
+                                            user.job !== null && { job: user.job.id },
                                             user.description !== "" && { description: user.description },
                                             user.facebook !== "" && { facebook: user.facebook },
                                             user.twitter !== "" && { twitter: user.twitter },
