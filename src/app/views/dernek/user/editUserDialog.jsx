@@ -385,13 +385,13 @@ const EditUserDialog = (props) => {
                                                 }
                                                 name="businessPhone"
                                                 control={control}
-                                                defaultValue={user.businessPhone}
+                                                defaultValue={user.businessPhone || ""}
                                             />
                                         </Grid>
 
                                         <Grid item lg={6} md={6} sm={12} xs={12}>
                                             <div>
-                                                <div style={{ paddingBottom: "0.64rem"}}>
+                                                <div style={{ paddingBottom: "0.64rem" }}>
                                                     <label htmlFor="profilePicture">
                                                         {
                                                             watch("profilePicture")
@@ -482,6 +482,7 @@ const EditUserDialog = (props) => {
                                                         label="Yaşdığı Sokak"
                                                         type="text"
                                                         multiline
+                                                        required={true}
                                                         error={!!errors.liveStreet}
                                                     />
                                                 }
@@ -499,6 +500,7 @@ const EditUserDialog = (props) => {
                                                         label="Yaşadığı Bina No"
                                                         type="text"
                                                         multiline
+                                                        required={true}
                                                         error={!!errors.liveBuildingNo}
                                                     />
                                                 }
@@ -521,7 +523,7 @@ const EditUserDialog = (props) => {
                                                 }
                                                 name="businessAddress"
                                                 control={control}
-                                                defaultValue={user.businessAddress}
+                                                defaultValue={user.businessAddress || ""}
                                             />
 
                                             <Controller
@@ -537,7 +539,7 @@ const EditUserDialog = (props) => {
                                                 }
                                                 name="description"
                                                 control={control}
-                                                defaultValue={user.description}
+                                                defaultValue={user.description || ""}
                                             />
 
                                             <Controller
@@ -570,7 +572,7 @@ const EditUserDialog = (props) => {
                                                 }
                                                 name="facebook"
                                                 control={control}
-                                                defaultValue={user.facebook}
+                                                defaultValue={user.facebook || ""}
                                             />
 
                                             <Controller
@@ -586,7 +588,7 @@ const EditUserDialog = (props) => {
                                                 }
                                                 name="twitter"
                                                 control={control}
-                                                defaultValue={user.twitter}
+                                                defaultValue={user.twitter || ""}
                                             />
 
                                             <Controller
@@ -602,7 +604,7 @@ const EditUserDialog = (props) => {
                                                 }
                                                 name="instagram"
                                                 control={control}
-                                                defaultValue={user.instagram}
+                                                defaultValue={user.instagram || ""}
                                             />
 
                                             <ControlledAutocomplete

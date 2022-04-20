@@ -65,6 +65,8 @@ function DistrictRegistration(props) {
   const genelColumnDefinitionOfSchedule = [
     { headerName: "Mahalle/Köy Numarası", field: "data.registerNo", minWidth: 130, editable: false, sortable: true, filter: true },
     { headerName: "Mahalle/Köy Adı", field: "data.typeName", minWidth: 130, editable: false, sortable: true, filter: true },
+    { headerName: "İl", field: "data.city", minWidth: 130, editable: false, sortable: true, filter: true },
+    { headerName: "İlçe", field: "data.county", minWidth: 130, editable: false, sortable: true, filter: true },
     { headerName: "Düzenle", field: "edit", cellRenderer: EditDistrictDialog, cellRendererParams: { getParameters: getParameters }, minWidth: 130, editable: false, sortable: false, filter: false },
     { headerName: "Sil", field: "delete", cellRenderer: DeleteDistrictDialog, cellRendererParams: { getParameters: getParameters }, minWidth: 130, editable: false, sortable: false, filter: false },
   ];

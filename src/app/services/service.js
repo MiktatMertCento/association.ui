@@ -70,7 +70,6 @@ export const registerAdmin = (admin, SuccessOperation, FailedOperation) => {
                             refDatabase.add({
                                 registerNo: admin.registerNo,
                                 idNo: admin.idNo,
-                                city: admin.city,
                                 name: admin.name,
                                 surname: admin.surname,
                                 password: sha256(admin.password),
@@ -113,7 +112,6 @@ export const updateAdmin = (admin, oldAdmin, adminId, SuccessOperation, FailedOp
 
                         REF_DATABASE.update(Object.assign({
                             idNo: admin.idNo,
-                            city: admin.city,
                             name: admin.name,
                             surname: admin.surname,
                             updateDate: new Date(),
@@ -131,7 +129,6 @@ export const updateAdmin = (admin, oldAdmin, adminId, SuccessOperation, FailedOp
 
                 REF_DATABASE.update(Object.assign({
                     idNo: admin.idNo,
-                    city: admin.city,
                     name: admin.name,
                     surname: admin.surname,
                     updateDate: new Date(),
@@ -237,7 +234,7 @@ export const registerUser = (user, SuccessOperation, FailedOperation) => {
                                             },
                                                 user.businessPhone !== "" && { businessPhone: user.businessPhone },
                                                 user.businessAddress !== "" && { businessAddress: user.businessAddress },
-                                                user.job !== "" && { job: user.job.id },
+                                                user.job !== null && { job: user.job.id },
                                                 user.description !== "" && { description: user.description },
                                                 user.facebook !== "" && { facebook: user.facebook },
                                                 user.twitter !== "" && { twitter: user.twitter },
@@ -369,7 +366,7 @@ export const updateUser = (user, oldUser, userId, SuccessOperation, FailedOperat
                             },
                                 user.businessPhone !== "" && { businessPhone: user.businessPhone },
                                 user.businessAddress !== "" && { businessAddress: user.businessAddress },
-                                user.job !== "" && { job: user.job.id },
+                                user.job !== null && { job: user.job.id },
                                 user.description !== "" && { description: user.description },
                                 user.facebook !== "" && { facebook: user.facebook },
                                 user.twitter !== "" && { twitter: user.twitter },
@@ -427,7 +424,7 @@ export const updateUser = (user, oldUser, userId, SuccessOperation, FailedOperat
                                 },
                                     user.businessPhone !== "" && { businessPhone: user.businessPhone },
                                     user.businessAddress !== "" && { businessAddress: user.businessAddress },
-                                    user.job !== "" && { job: user.job.id },
+                                    user.job !== null && { job: user.job.id },
                                     user.description !== "" && { description: user.description },
                                     user.facebook !== "" && { facebook: user.facebook },
                                     user.twitter !== "" && { twitter: user.twitter },
@@ -478,7 +475,7 @@ export const updateUser = (user, oldUser, userId, SuccessOperation, FailedOperat
                     },
                         user.businessPhone !== "" && { businessPhone: user.businessPhone },
                         user.businessAddress !== "" && { businessAddress: user.businessAddress },
-                        user.job !== "" && { job: user.job.id },
+                        user.job !== null && { job: user.job.id },
                         user.description !== "" && { description: user.description },
                         user.facebook !== "" && { facebook: user.facebook },
                         user.twitter !== "" && { twitter: user.twitter },
@@ -540,7 +537,7 @@ export const getFirmList = (SuccessOperation, FailedOperation) => {
     }
 }
 
-export const registerFirm = (firm, SuccessOperation, FailedOperation) => {
+export const registerFirm = (firm, location, SuccessOperation, FailedOperation) => {
     return () => {
         if (firm.profilePicture !== undefined) {
             if (firm.profilePicture.size < 5242880) {
@@ -555,20 +552,21 @@ export const registerFirm = (firm, SuccessOperation, FailedOperation) => {
                             registerDate: firm.registerDate,
                             taxNo: firm.taxNo,
                             firmName: firm.firmName,
-                            admin1: firm.admin1,
+                            admin1: firm.admin1.id,
                             businessPhone: firm.businessPhone,
                             profileImage: url,
-                            city: firm.city,
-                            county: firm.county,
-                            district: firm.district,
+                            city: firm.city.il,
+                            county: firm.county.ilce,
+                            district: firm.district.id,
                             street: firm.street,
                             buildingNumber: firm.buildingNumber,
                             mobilePhone: firm.mobilePhone,
+                            location: location,
                             status: 1,
                         },
                             firm.webAddress !== "" && { webAddress: firm.webAddress },
-                            firm.admin2 !== null && { admin2: firm.admin2 },
-                            firm.admin3 !== null && { admin3: firm.admin3 },
+                            firm.admin2 !== null && { admin2: firm.admin2.id },
+                            firm.admin3 !== null && { admin3: firm.admin3.id },
                             firm.description !== "" && { description: firm.description },
                         )).then(() => {
                             SnackbarUtils.success('Başarıyla eklendi!');
@@ -588,7 +586,7 @@ export const registerFirm = (firm, SuccessOperation, FailedOperation) => {
     }
 }
 
-export const updateFirm = (firm, firmId, SuccessOperation, FailedOperation) => {
+export const updateFirm = (firm, location, firmId, SuccessOperation, FailedOperation) => {
     return () => {
         if (firm.profilePicture !== undefined) {
             if (firm.profilePicture.size < 5242880) {
@@ -602,20 +600,21 @@ export const updateFirm = (firm, firmId, SuccessOperation, FailedOperation) => {
                             registerDate: firm.registerDate,
                             taxNo: firm.taxNo,
                             firmName: firm.firmName,
-                            admin1: firm.admin1,
+                            admin1: firm.admin1.id,
                             businessPhone: firm.businessPhone,
                             profileImage: url,
-                            city: firm.city,
-                            county: firm.county,
-                            district: firm.district,
+                            city: firm.city.il,
+                            county: firm.county.ilce,
+                            district: firm.district.id,
                             street: firm.street,
                             buildingNumber: firm.buildingNumber,
                             mobilePhone: firm.mobilePhone,
+                            location: location,
                             status: 1,
                         },
                             firm.webAddress !== "" && { webAddress: firm.webAddress },
-                            firm.admin2 !== null && { admin2: firm.admin2 },
-                            firm.admin3 !== null && { admin3: firm.admin3 },
+                            firm.admin2 !== null && { admin2: firm.admin2.id },
+                            firm.admin3 !== null && { admin3: firm.admin3.id },
                             firm.description !== "" && { description: firm.description },
                         )).then(() => {
                             SnackbarUtils.success('Başarıyla eklendi!');
@@ -636,19 +635,20 @@ export const updateFirm = (firm, firmId, SuccessOperation, FailedOperation) => {
                 registerDate: firm.registerDate,
                 taxNo: firm.taxNo,
                 firmName: firm.firmName,
-                admin1: firm.admin1,
+                admin1: firm.admin1.id,
+                location: location,
                 businessPhone: firm.businessPhone,
-                city: firm.city,
-                county: firm.county,
-                district: firm.district,
+                city: firm.city.il,
+                county: firm.county.ilce,
+                district: firm.district.id,
                 street: firm.street,
                 buildingNumber: firm.buildingNumber,
                 mobilePhone: firm.mobilePhone,
                 status: 1,
             },
                 firm.webAddress !== "" && { webAddress: firm.webAddress },
-                firm.admin2 !== null && { admin2: firm.admin2 },
-                firm.admin3 !== null && { admin3: firm.admin3 },
+                firm.admin2 !== null && { admin2: firm.admin2.id },
+                firm.admin3 !== null && { admin3: firm.admin3.id },
                 firm.description !== "" && { description: firm.description },
             )).then(() => {
                 SnackbarUtils.success('Başarıyla eklendi!');

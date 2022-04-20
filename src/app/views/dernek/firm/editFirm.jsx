@@ -48,8 +48,8 @@ const EditFirm = (props) => {
             headerName: "Kayıt Tarihi", field: "data.registerDate", cellRenderer: (data) => {
                 return moment(data.createdAt).format('MM/DD/YYYY')
             }, minWidth: 130, editable: false, sortable: true, filter: true
-        }, { headerName: "Şehir", field: "data.city.typeName", minWidth: 130, editable: false, sortable: true, filter: true },
-        { headerName: "İlçe", field: "data.county.typeName", minWidth: 130, editable: false, sortable: true, filter: true },
+        }, { headerName: "Şehir", field: "data.city", minWidth: 130, editable: false, sortable: true, filter: true },
+        { headerName: "İlçe", field: "data.county", minWidth: 130, editable: false, sortable: true, filter: true },
         { headerName: "Düzenle", field: "edit", cellRenderer: EditFirmDialog, cellRendererParams: { getFirmList: getParameters }, minWidth: 130, editable: false, sortable: false, filter: false },
         { headerName: "Sil", field: "delete", cellRenderer: DeleteFirmDialog, cellRendererParams: { getFirmList: getParameters }, minWidth: 130, editable: false, sortable: false, filter: false },
     ];

@@ -21,6 +21,10 @@ export const borderStyles = makeStyles(({ palette, ...theme }) => ({
         '.border-radius-circle': { borderRadius: '50% !important' },
         '.border-none': { border: 'none !important' },
         '.border-transparent': { border: '1px solid transparent !important' },
+        '.rounded-1': {
+            borderRadius: '.7rem !important',
+            overflow: 'hidden !important',
+        },
         '.rounded': {
             borderRadius: '300px !important',
             overflow: 'hidden !important',

@@ -1,226 +1,71 @@
-/*import React, { useCallback, useEffect, useState } from 'react'
-import { useHistory } from 'react-router-dom';
-import { Grid, Card, Icon, IconButton, Tooltip } from '@material-ui/core'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { connect } from 'react-redux';
-import { GetStudentList, GetTeacherList, GetClassList, GetAnnouncement } from '../../../services/service'
-import { makeStyles } from '@material-ui/core/styles'
-import LoadingShimmer from '../Components/LoadingShimmer';
-
-const useStyles = makeStyles(({ palette, ...theme }) => ({
-    icon: {
-        fontSize: '44px',
-        opacity: 0.6,
-        color: palette.primary.main,
-    },
-}))
+import { AgGridReact } from 'ag-grid-react';
+import { ServiceCalling } from 'app/services/serviceCalling';
+import { getUserList } from '../../../services/service'
+import moment from 'moment'
 
 const HomePageStats = (props) => {
-    const history = useHistory();
-    const [takenData, setTakenData] = useState(0)
     const [isLoading, setIsLoading] = useState(true)
-    const [studentList, setStudentList] = useState(0)
-    const [teacherList, setTeacherList] = useState(0)
-    const [classList, setClassList] = useState(0)
-    const [announcementList, setAnnouncementList] = useState(0)
+    const [userList, setUserList] = useState([])
+    const gridRef = useRef();
 
-    const classes = useStyles()
+    const getParameters = useCallback(
+        async () => {
+            const userList = await ServiceCalling.getUserList(props)
+            setUserList(userList)
 
-    const GetStudentList = useCallback(
-        () => {
-            props.GetStudentList(
-                ({ STUDENT_LIST_LENGTH }) => {
-                    const status = new Promise((resolve, reject) => {
-                        try {
-                            resolve('Operation start');
-                        }
-                        catch {
-                            reject('Operation failed')
-                        }
-                    });
-                    status.then(() => {
-                        setStudentList(STUDENT_LIST_LENGTH);
-                        setTakenData(takenData => takenData + 1);
-                    })
-                },
-                () => {
-                    console.log("failed")
-                }
-            );
-        }, [props]);
-
-    const GetTeacherList = useCallback(
-        () => {
-            props.GetTeacherList(
-                ({ TEACHER_LIST_LENGTH }) => {
-                    const status = new Promise((resolve, reject) => {
-                        try {
-                            resolve('Operation start');
-                        }
-                        catch {
-                            reject('Operation failed')
-                        }
-                    });
-                    status.then(() => {
-                        setTeacherList(TEACHER_LIST_LENGTH);
-                        setTakenData(takenData => takenData + 1);
-                    })
-                },
-                () => {
-                    console.log("failed")
-                }
-            );
-        }, [props]);
-
-    const GetClassList = useCallback(
-        () => {
-            props.GetClassList(
-                ({ CLASS_LIST_LENGTH }) => {
-                    const status = new Promise((resolve, reject) => {
-                        try {
-                            resolve('Operation start');
-                        }
-                        catch {
-                            reject('Operation failed')
-                        }
-                    });
-                    status.then(() => {
-                        setClassList(CLASS_LIST_LENGTH);
-                        setTakenData(takenData => takenData + 1);
-                    })
-                },
-                () => {
-                    console.log("failed")
-                }
-            );
-        }, [props]);
-
-    const GetAnnouncement = useCallback(
-        () => {
-            props.GetAnnouncement(
-                ({ AnnouncementListLength }) => {
-                    const status = new Promise((resolve, reject) => {
-                        try {
-                            resolve('Operation start');
-                        }
-                        catch {
-                            reject('Operation failed')
-                        }
-                    });
-                    status.then(() => {
-                        setAnnouncementList(AnnouncementListLength);
-                        setTakenData(takenData => takenData + 1);
-                    })
-                },
-                () => {
-                    console.log("failed")
-                }
-            );
-        }, [props]);
-
-
-    useEffect(() => {
-        GetStudentList();
-        GetTeacherList();
-        GetClassList();
-        GetAnnouncement();
-    }, [GetStudentList, GetTeacherList, GetClassList, GetAnnouncement]);
-
-    useEffect(() => {
-        if (takenData === 4) {
             setIsLoading(false);
-        }
-    }, [takenData])
+        }, [props]
+    );
 
+    useEffect(() => {
+        getParameters();
+    }, [getParameters])
+
+    const defaultColDef = {
+        editable: true,
+        sortable: false,
+        flex: 1,
+        minWidth: 130,
+        filter: false,
+        resizable: true,
+        lockPosition: true,
+    };
+
+    const genelColumnDefinitionOfSchedule = [
+        { headerName: "Üye Numarası", field: "data.registerNo", minWidth: 130, editable: false, sortable: true, filter: true },
+        { headerName: "TC No", field: "data.idNo", minWidth: 130, editable: false, sortable: true, filter: true },
+        { headerName: "Adı Soyadı", valueGetter: (params) => params.data.data.name + " " + params.data.data.surname, minWidth: 130, editable: false, sortable: true, filter: true },
+        {
+            headerName: "Doğum Tarihi", field: "data.birthday", cellRenderer: (data) => {
+                return moment(data.createdAt).format('MM/DD/YYYY')
+            }, minWidth: 130, editable: false, sortable: true, filter: true
+        },
+       // { headerName: "Düzenle", field: "edit", cellRenderer: EditUserDialog, cellRendererParams: { getUserList: getParameters }, minWidth: 130, editable: false, sortable: false, filter: false },
+       // { headerName: "Sil", field: "delete", cellRenderer: DeleteUserDialog, cellRendererParams: { getUserList: getParameters }, minWidth: 130, editable: false, sortable: false, filter: false },
+    ];
 
     return (
-
-        <Grid container spacing={3} className="mb-3">
-            <Grid item xs={12} md={6}>
-                <Card
-                    className="flex flex-wrap justify-between items-center p-sm-24 bg-paper"
-                    elevation={6}
-                >
-                    <div className="flex items-center">
-                        <Icon className={classes.icon}>group</Icon>
-                        <div className="ml-3">
-                            <small className="text-muted">Öğrenci Sayısı</small>
-                            <h6 className="m-0 mt-1 text-primary font-medium">
-                                {isLoading ? <LoadingShimmer isOne maxWidth={6} /> : studentList}
-                            </h6>
-                        </div>
-                    </div>
-                    <Tooltip title="Detayları Gör" placement="top">
-                        <IconButton onClick={() => history.push("/ogrenci-listesi")}>
-                            <Icon>arrow_right_alt</Icon>
-                        </IconButton>
-                    </Tooltip>
-                </Card>
-            </Grid>
-            <Grid item xs={12} md={6}>
-                <Card
-                    className="flex flex-wrap justify-between items-center p-sm-24 bg-paper"
-                    elevation={6}
-                >
-                    <div className="flex items-center">
-                        <Icon className={classes.icon}>store</Icon>
-                        <div className="ml-3">
-                            <small className="text-muted">Sınıf Sayısı</small>
-                            <h6 className="m-0 mt-1 text-primary font-medium">
-                                {isLoading ? <LoadingShimmer isOne maxWidth={6} /> : classList}
-                            </h6>
-                        </div>
-                    </div>
-                    <Tooltip title="Detayları Gör" placement="top">
-                        <IconButton onClick={() => history.push("/sinif-tanimla")}>
-                            <Icon>arrow_right_alt</Icon>
-                        </IconButton>
-                    </Tooltip>
-                </Card>
-            </Grid>
-            <Grid item xs={12} md={6}>
-                <Card
-                    className="flex flex-wrap justify-between items-center p-sm-24 bg-paper"
-                    elevation={6}
-                >
-                    <div className="flex items-center">
-                        <Icon className={classes.icon}>group</Icon>
-                        <div className="ml-3">
-                            <small className="text-muted">Öğretmen Sayısı</small>
-                            <h6 className="m-0 mt-1 text-primary font-medium">
-                                {isLoading ? <LoadingShimmer isOne maxWidth={6} /> : teacherList}
-                            </h6>
-                        </div>
-                    </div>
-                    <Tooltip title="Detayları Gör" placement="top">
-                        <IconButton onClick={() => history.push("/ogretmen-listesi")}>
-                            <Icon>arrow_right_alt</Icon>
-                        </IconButton>
-                    </Tooltip>
-                </Card>
-            </Grid>
-            <Grid item xs={12} md={6}>
-                <Card
-                    className="flex flex-wrap justify-between items-center p-sm-24 bg-paper"
-                    elevation={6}
-                >
-                    <div className="flex items-center">
-                        <Icon className={classes.icon}>campaign</Icon>
-                        <div className="ml-3">
-                            <small className="text-muted">Duyuru ve Etkinlik Sayısı</small>
-                            <h6 className="m-0 mt-1 text-primary font-medium">
-                                {isLoading ? <LoadingShimmer isOne maxWidth={6} /> : announcementList}
-                            </h6>
-                        </div>
-                    </div>
-                    <Tooltip title="Detayları Gör" placement="top">
-                        <IconButton onClick={() => history.push("/duyuru-etkinlik")}>
-                            <Icon>arrow_right_alt</Icon>
-                        </IconButton>
-                    </Tooltip>
-                </Card>
-            </Grid>
-        </Grid>
+        <div className="ag-theme-alpine" style={{ height: 370, width: '100%' }}>
+            <AgGridReact
+                columnDefs={genelColumnDefinitionOfSchedule}
+                rowData={userList}
+                defaultColDef={defaultColDef}
+                enableCellChangeFlash={true}
+                enableCellTextSelection={true}
+                enableCellExpressions={true}
+                enableGroupEdit={true}
+                enableRangeHandle={true}
+                rowSelection={'multiple'}
+                ref={gridRef}
+                animateRows={true}
+            >
+            </AgGridReact>
+        </div>
     )
 }
 
-export default connect(null, { GetStudentList, GetTeacherList, GetClassList, GetAnnouncement })(HomePageStats)*/
+export default connect(null, {
+    getUserList
+})(HomePageStats)

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import Button from '@material-ui/core/Button'
 import Dialog from '@material-ui/core/Dialog'
 import DialogActions from '@material-ui/core/DialogActions'
@@ -8,16 +8,66 @@ import { Grid, Icon, IconButton, TextField, Tooltip } from '@material-ui/core'
 import { Controller, useForm } from 'react-hook-form'
 import { connect } from 'react-redux'
 import ControlledAutocomplete from '../components/ControlledAutocomplete'
-import { updateFirm } from '../../../services/service'
 import { KeyboardDatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers'
 import DateFnsUtils from '@date-io/date-fns'
 import trLocale from "date-fns/locale/tr";
+import { updateFirm, getLastId, getUserList, getDistrictList } from 'app/services/service';
+import { ServiceCalling } from '../../../services/serviceCalling';
+import counties from '../assets/json/Counties.json';
+import cities from '../assets/json/Cities.json';
+import { MatxLoading } from 'app/components'
+import MapPicker from 'react-google-map-picker'
 
 const EditFirmDialog = (props) => {
     const [open, setOpen] = useState(false)
+    const [isLoading, setIsLoading] = useState(true)
     const { handleSubmit, control, formState: { errors }, watch, getValues, setValue } = useForm();
     const profilePictureRef = useRef()
     const firm = props.data.data
+    const [location, setLocation] = useState(firm.location);
+    const [zoom, setZoom] = useState(17);
+    const [userList, setUserList] = useState([])
+    const [districtList, setDistrictList] = useState([])
+    const [mapComponent, setMapComponent] = useState(() => <div></div>)
+
+    const getParameters = useCallback(
+        async (isSaved) => {
+            let lastUserId = await ServiceCalling.getLastId(props, 'firms');
+            setValue("registerNo", parseInt(lastUserId) + 1)
+
+            let userList_ = await ServiceCalling.getUserList(props);
+            setUserList(userList_)
+
+            let districtList_ = await ServiceCalling.getDistrictList(props);
+            setDistrictList(districtList_)
+
+            if (!isSaved) {
+
+            }
+
+            setIsLoading(false);
+        },
+        [props, setValue]
+    );
+
+    useEffect(() => {
+        if (open) getParameters();
+    }, [getParameters, open])
+
+    useEffect(() => {
+        if (open) setMapComponent(() => <MapPicker defaultLocation={location}
+            zoom={zoom}
+            mapTypeId="hybrid"
+            style={{ height: '20rem' }}
+            onChangeLocation={(lat, lng) => setLocation({ lat: lat, lng: lng })}
+            onChangeZoom={zoom => setZoom(zoom)}
+            className="rounded-1"
+            apiKey={process.env.REACT_APP_GOOGLE_MAP_API} />)
+
+        return () => {
+            setMapComponent(() => <div></div>)
+        }
+    }, [open])
 
     return (
         <div>
@@ -35,344 +85,355 @@ const EditFirmDialog = (props) => {
                     aria-labelledby="alert-dialog-title"
                     aria-describedby="alert-dialog-description">
                     <DialogTitle id="alert-dialog-title">
-                        {firm.name} {firm.surname} İsimli Kullanıcıyı Düzenle
+                        {firm.firmName} İsimli Firmayı Düzenle
                     </DialogTitle>
                     <DialogContent>
-                        <Grid container spacing={6}>
-                            <Grid item lg={6} md={6} sm={12} xs={12}>
-                                <Controller
-                                    render={({ field }) =>
-                                        <TextField
-                                            {...field}
-                                            className="mb-4 w-full"
-                                            variant="outlined"
-                                            label="Kayıt No"
-                                            type="number"
-                                            disabled
-                                            error={!!errors.registerNo}
-                                        />
-                                    }
-                                    name="registerNo"
-                                    control={control}
-                                    rules={{ required: true }}
-                                    defaultValue={firm.registerNo}
-                                />
-
-                                <MuiPickersUtilsProvider utils={DateFnsUtils} locale={trLocale}>
-                                    <Controller
-                                        name="registerDate"
-                                        control={control}
-                                        defaultValue={firm.registerDate.toDate()}
-                                        render={({ field: { ref, ...rest } }) => (
-                                            <KeyboardDatePicker
-                                                className="mb-4 w-full"
-                                                format="dd.MM.yyyy"
-                                                margin="none"
-                                                id="mui-pickers-date"
-                                                label="Kayıt Tarihi"
-                                                inputVariant="outlined"
-                                                type="text"
-                                                autoOk={true}
-                                                KeyboardButtonProps={{
-                                                    'aria-label': 'change date',
-                                                }}
-                                                okLabel="Tarih Seç"
-                                                cancelLabel="Vazgeç"
-                                                {...rest}
-                                                error={!!errors.registerDate}
+                        {
+                            isLoading
+                                ? <MatxLoading />
+                                : <div>
+                                    <Grid container spacing={6}>
+                                        <Grid item lg={6} md={6} sm={12} xs={12}>
+                                            <Controller
+                                                render={({ field }) =>
+                                                    <TextField
+                                                        {...field}
+                                                        className="mb-4 w-full"
+                                                        variant="outlined"
+                                                        label="Kayıt No"
+                                                        type="number"
+                                                        disabled
+                                                        error={!!errors.registerNo}
+                                                    />
+                                                }
+                                                name="registerNo"
+                                                control={control}
+                                                rules={{ required: true }}
+                                                defaultValue={firm.registerNo}
                                             />
-                                        )}
-                                    />
-                                </MuiPickersUtilsProvider>
 
-                                <Controller
-                                    render={({ field }) =>
-                                        <TextField
-                                            {...field}
-                                            className="mb-4 w-full"
-                                            variant="outlined"
-                                            label="Vergi No"
-                                            type="number"
-                                            error={!!errors.taxNo}
-                                        />
-                                    }
-                                    name="taxNo"
-                                    control={control}
-                                    rules={{ required: true }}
-                                    defaultValue={firm.taxNo}
-                                />
+                                            <MuiPickersUtilsProvider utils={DateFnsUtils} locale={trLocale}>
+                                                <Controller
+                                                    name="registerDate"
+                                                    control={control}
+                                                    defaultValue={firm.registerDate.toDate()}
+                                                    render={({ field: { ref, ...rest } }) => (
+                                                        <KeyboardDatePicker
+                                                            className="mb-4 w-full"
+                                                            format="dd.MM.yyyy"
+                                                            margin="none"
+                                                            id="mui-pickers-date"
+                                                            label="Kayıt Tarihi"
+                                                            inputVariant="outlined"
+                                                            type="text"
+                                                            autoOk={true}
+                                                            KeyboardButtonProps={{
+                                                                'aria-label': 'change date',
+                                                            }}
+                                                            okLabel="Tarih Seç"
+                                                            cancelLabel="Vazgeç"
+                                                            {...rest}
+                                                            error={!!errors.registerDate}
+                                                        />
+                                                    )}
+                                                />
+                                            </MuiPickersUtilsProvider>
 
-                                <Controller
-                                    render={({ field }) =>
-                                        <TextField
-                                            {...field}
-                                            className="mb-4 w-full"
-                                            variant="outlined"
-                                            label="Firma Unvanı"
-                                            type="text"
-                                            error={!!errors.firmName}
-                                        />
-                                    }
-                                    name="firmName"
-                                    control={control}
-                                    rules={{ required: true }}
-                                    defaultValue={firm.firmName}
-                                />
+                                            <Controller
+                                                render={({ field }) =>
+                                                    <TextField
+                                                        {...field}
+                                                        className="mb-4 w-full"
+                                                        variant="outlined"
+                                                        label="Vergi No"
+                                                        type="number"
+                                                        error={!!errors.taxNo}
+                                                    />
+                                                }
+                                                name="taxNo"
+                                                control={control}
+                                                rules={{ required: true }}
+                                                defaultValue={firm.taxNo}
+                                            />
 
-                                <Controller
-                                    render={({ field }) =>
-                                        <TextField
-                                            {...field}
-                                            className="mb-4 w-full"
-                                            variant="outlined"
-                                            label="Web Adresi"
-                                            type="text"
-                                            error={!!errors.webAddress}
-                                        />
-                                    }
-                                    name="webAddress"
-                                    control={control}
-                                    rules={{ required: false }}
-                                    defaultValue={firm.webAddress}
-                                />
+                                            <Controller
+                                                render={({ field }) =>
+                                                    <TextField
+                                                        {...field}
+                                                        className="mb-4 w-full"
+                                                        variant="outlined"
+                                                        label="Firma Unvanı"
+                                                        type="text"
+                                                        error={!!errors.firmName}
+                                                    />
+                                                }
+                                                name="firmName"
+                                                control={control}
+                                                rules={{ required: true }}
+                                                defaultValue={firm.firmName}
+                                            />
 
-                                <ControlledAutocomplete
-                                    className="mb-4 w-full"
-                                    options={[{ id: "x", typeName: "Miktat Cento" }, { id: "y", typeName: "Hasan Oruç" }]}
-                                    control={control}
-                                    name="admin1"
-                                    defaultValue={firm.admin1}
-                                    required={true}
-                                    getOptionLabel={(option) => option.typeName}
-                                    getOptionSelected={(option, value) => option.id === value.id}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            variant="outlined"
-                                            label="1. Yetkili Kişi"
-                                            type="text"
-                                            error={!!errors.admin1}
-                                        />
-                                    )}
-                                />
+                                            <Controller
+                                                render={({ field }) =>
+                                                    <TextField
+                                                        {...field}
+                                                        className="mb-4 w-full"
+                                                        variant="outlined"
+                                                        label="Web Adresi"
+                                                        type="text"
+                                                        error={!!errors.webAddress}
+                                                    />
+                                                }
+                                                name="webAddress"
+                                                control={control}
+                                                rules={{ required: false }}
+                                                defaultValue={firm.webAddress}
+                                            />
 
-                                <ControlledAutocomplete
-                                    className="mb-4 w-full"
-                                    options={[{ id: "x", typeName: "Miktat Cento" }, { id: "y", typeName: "Hasan Oruç" }]}
-                                    control={control}
-                                    name="admin2"
-                                    defaultValue={firm.admin2}
-                                    getOptionLabel={(option) => option.typeName}
-                                    getOptionSelected={(option, value) => option.id === value.id}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            variant="outlined"
-                                            label="2. Yetkili Kişi"
-                                            type="text"
-                                            error={!!errors.admin2}
-                                        />
-                                    )}
-                                />
+                                            <ControlledAutocomplete
+                                                className="mb-4 w-full"
+                                                options={userList}
+                                                control={control}
+                                                name="admin1"
+                                                defaultValue={userList.find(x => x.id === firm.admin1)}
+                                                required={true}
+                                                getOptionLabel={(option) => `${option.data.name} ${option.data.surname} - ${option.data.idNo}`}
+                                                getOptionSelected={(option, value) => option.id === value.id}
+                                                renderInput={(params) => (
+                                                    <TextField
+                                                        {...params}
+                                                        variant="outlined"
+                                                        label="1. Yetkili Kişi"
+                                                        type="text"
+                                                        error={!!errors.admin1}
+                                                    />
+                                                )}
+                                            />
 
-                                <ControlledAutocomplete
-                                    className="mb-4 w-full"
-                                    options={[{ id: "x", typeName: "Miktat Cento" }, { id: "y", typeName: "Hasan Oruç" }]}
-                                    control={control}
-                                    name="admin3"
-                                    defaultValue={firm.admin3}
-                                    getOptionLabel={(option) => option.typeName}
-                                    getOptionSelected={(option, value) => option.id === value.id}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            variant="outlined"
-                                            label="3. Yetkili Kişi"
-                                            type="text"
-                                            error={!!errors.admin3}
-                                        />
-                                    )}
-                                />
+                                            <ControlledAutocomplete
+                                                className="mb-4 w-full"
+                                                options={userList}
+                                                control={control}
+                                                name="admin2"
+                                                defaultValue={userList.find(x => x.id === firm.admin2) || null}
+                                                required={false}
+                                                getOptionLabel={(option) => `${option.data.name} ${option.data.surname} - ${option.data.idNo}`}
+                                                getOptionSelected={(option, value) => option.id === value.id}
+                                                renderInput={(params) => (
+                                                    <TextField
+                                                        {...params}
+                                                        variant="outlined"
+                                                        label="2. Yetkili Kişi"
+                                                        type="text"
+                                                        error={!!errors.admin2}
+                                                    />
+                                                )}
+                                            />
 
-                                <Controller
-                                    render={({ field }) =>
-                                        <TextField
-                                            {...field}
-                                            className="mb-4 w-full"
-                                            variant="outlined"
-                                            label="İş Telefonu"
-                                            type="text"
-                                            error={!!errors.businessPhone}
-                                        />
-                                    }
-                                    name="businessPhone"
-                                    control={control}
-                                    rules={{ required: true }}
-                                    defaultValue={firm.businessPhone}
-                                />
-                            </Grid>
+                                            <ControlledAutocomplete
+                                                className="mb-4 w-full"
+                                                options={userList}
+                                                control={control}
+                                                name="admin3"
+                                                defaultValue={userList.find(x => x.id === firm.admin3) || null}
+                                                required={false}
+                                                getOptionLabel={(option) => `${option.data.name} ${option.data.surname} - ${option.data.idNo}`}
+                                                getOptionSelected={(option, value) => option.id === value.id}
+                                                renderInput={(params) => (
+                                                    <TextField
+                                                        {...params}
+                                                        variant="outlined"
+                                                        label="3. Yetkili Kişi"
+                                                        type="text"
+                                                        error={!!errors.admin3}
+                                                    />
+                                                )}
+                                            />
 
-                            <Grid item lg={6} md={6} sm={12} xs={12}>
-                                <div>
-                                    <div style={{ paddingBottom: "0.64rem" }}>
-                                        <label htmlFor="profilePicture">
-                                            {
-                                                watch("profilePicture")
-                                                    ? <img src={URL.createObjectURL(getValues("profilePicture"))} alt="profile" style={{ height: "7.74rem", width: "7.74rem", borderRadius: "1rem", objectFit: "cover" }} />
-                                                    : <img src={firm.profileImage} alt="profile" style={{ height: "7.74rem", width: "7.74rem", borderRadius: "1rem", objectFit: "cover" }} />
-                                            }
-                                        </label>
+                                            <Controller
+                                                render={({ field }) =>
+                                                    <TextField
+                                                        {...field}
+                                                        className="mb-4 w-full"
+                                                        variant="outlined"
+                                                        label="İş Telefonu"
+                                                        type="text"
+                                                        error={!!errors.businessPhone}
+                                                    />
+                                                }
+                                                name="businessPhone"
+                                                control={control}
+                                                rules={{ required: true }}
+                                                defaultValue={firm.businessPhone}
+                                            />
+                                        </Grid>
 
-                                        <Controller
-                                            render={() =>
-                                                <input id='profilePicture' ref={profilePictureRef} className="mb-4 w-full hidden" onChange={() => setValue("profilePicture", profilePictureRef.current.files[0])} type="file" accept="image/*" />
-                                            }
-                                            name="profilePicture"
-                                            control={control}
-                                            rules={{ required: false }}
-                                            defaultValue={undefined}
-                                        />
-                                    </div>
+                                        <Grid item lg={6} md={6} sm={12} xs={12}>
+                                            <div>
+                                                <div style={{ paddingBottom: "0.64rem" }}>
+                                                    <label htmlFor="profilePicture">
+                                                        {
+                                                            watch("profilePicture")
+                                                                ? <img src={URL.createObjectURL(getValues("profilePicture"))} alt="profile" style={{ height: "7.74rem", width: "7.74rem", borderRadius: "1rem", objectFit: "cover" }} />
+                                                                : <img src={firm.profileImage} alt="profile" style={{ height: "7.74rem", width: "7.74rem", borderRadius: "1rem", objectFit: "cover" }} />
+                                                        }
+                                                    </label>
+
+                                                    <Controller
+                                                        render={() =>
+                                                            <input id='profilePicture' ref={profilePictureRef} className="mb-4 w-full hidden" onChange={() => setValue("profilePicture", profilePictureRef.current.files[0])} type="file" accept="image/*" />
+                                                        }
+                                                        name="profilePicture"
+                                                        control={control}
+                                                        rules={{ required: false }}
+                                                        defaultValue={undefined}
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <ControlledAutocomplete
+                                                className="mb-4 w-full"
+                                                options={cities}
+                                                control={control}
+                                                name="city"
+                                                defaultValue={cities.find(city => city.il === firm.city)}
+                                                required={true}
+                                                getOptionLabel={(option) => option.il}
+                                                getOptionSelected={(option, value) => option.nviid === value.nviid}
+                                                onChange={(() => { setValue("county", null) })}
+                                                renderInput={(params) => (
+                                                    <TextField
+                                                        {...params}
+                                                        variant="outlined"
+                                                        label="İl"
+                                                        type="text"
+                                                        error={!!errors.city}
+                                                    />
+                                                )}
+                                            />
+
+                                            <ControlledAutocomplete
+                                                className="mb-4 w-full"
+                                                options={watch("city") ? counties.filter(county => county.plaka === watch("city").plaka) : []}
+                                                control={control}
+                                                name="county"
+                                                defaultValue={counties.find(county => county.ilce === firm.county)}
+                                                required={true}
+                                                getOptionLabel={(option) => option.ilce}
+                                                getOptionSelected={(option, value) => option.nviid === value.nviid}
+                                                renderInput={(params) => (
+                                                    <TextField
+                                                        {...params}
+                                                        variant="outlined"
+                                                        label="İlçe"
+                                                        type="text"
+                                                        error={!!errors.county}
+                                                    />
+                                                )}
+                                            />
+
+
+
+                                            <ControlledAutocomplete
+                                                className="mb-4 w-full"
+                                                options={watch("county") ? districtList.filter(district => district.data.county === watch("county").ilce) : []}
+                                                control={control}
+                                                name="district"
+                                                defaultValue={districtList.find(district => district.id === firm.district)}
+                                                getOptionLabel={(option) => option.data.typeName}
+                                                getOptionSelected={(option, value) => option.id === value.id}
+                                                required={true}
+                                                renderInput={(params) => (
+                                                    <TextField
+                                                        {...params}
+                                                        variant="outlined"
+                                                        label="Mahalle"
+                                                        type="text"
+                                                        error={!!errors.district}
+                                                    />
+                                                )}
+                                            />
+
+                                            <Controller
+                                                render={({ field }) =>
+                                                    <TextField
+                                                        {...field}
+                                                        className="mb-4 w-full"
+                                                        variant="outlined"
+                                                        label="Sokak"
+                                                        type="text"
+                                                        error={!!errors.street}
+                                                    />
+                                                }
+                                                name="street"
+                                                control={control}
+                                                rules={{ required: true }}
+                                                defaultValue={firm.street}
+                                            />
+
+                                            <Controller
+                                                render={({ field }) =>
+                                                    <TextField
+                                                        {...field}
+                                                        className="mb-4 w-full"
+                                                        variant="outlined"
+                                                        label="Bina No"
+                                                        type="text"
+                                                        error={!!errors.buildingNumber}
+                                                    />
+                                                }
+                                                name="buildingNumber"
+                                                control={control}
+                                                rules={{ required: true }}
+                                                defaultValue={firm.buildingNumber}
+                                            />
+
+                                            <Controller
+                                                render={({ field }) =>
+                                                    <TextField
+                                                        {...field}
+                                                        className="mb-4 w-full"
+                                                        variant="outlined"
+                                                        label="Açıklama"
+                                                        type="text"
+                                                        error={!!errors.description}
+                                                    />
+                                                }
+                                                name="description"
+                                                control={control}
+                                                rules={{ required: false }}
+                                                defaultValue={firm.description || ""}
+                                            />
+
+                                            <Controller
+                                                render={({ field }) =>
+                                                    <TextField
+                                                        {...field}
+                                                        className="mb-4 w-full"
+                                                        variant="outlined"
+                                                        label="Cep Telefonu"
+                                                        type="phone"
+                                                        error={!!errors.mobilePhone}
+                                                    />
+                                                }
+                                                name="mobilePhone"
+                                                control={control}
+                                                rules={{ required: true }}
+                                                defaultValue={firm.mobilePhone}
+                                            />
+                                        </Grid>
+                                    </Grid>
+
+                                    {mapComponent ?? <div></div>}
+
                                 </div>
-
-                                <ControlledAutocomplete
-                                    className="mb-4 w-full"
-                                    options={[{ id: "x", typeName: "Gaziantep" }, { id: "y", typeName: "Ankara" }]}
-                                    control={control}
-                                    name="city"
-                                    defaultValue={firm.city}
-                                    getOptionLabel={(option) => option.typeName}
-                                    getOptionSelected={(option, value) => option.id === value.id}
-                                    required={true}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            variant="outlined"
-                                            label="İl"
-                                            type="text"
-                                            error={!!errors.city}
-                                        />
-                                    )}
-                                />
-
-                                <ControlledAutocomplete
-                                    className="mb-4 w-full"
-                                    options={[{ id: "x", typeName: "Şahinbey" }, { id: "y", typeName: "Şehitkamil" }]}
-                                    control={control}
-                                    name="county"
-                                    defaultValue={firm.county}
-                                    getOptionLabel={(option) => option.typeName}
-                                    getOptionSelected={(option, value) => option.id === value.id}
-                                    required={true}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            variant="outlined"
-                                            label="İlçe"
-                                            type="text"
-                                            error={!!errors.county}
-                                        />
-                                    )}
-                                />
-
-                                <ControlledAutocomplete
-                                    className="mb-4 w-full"
-                                    options={[{ id: "x", typeName: "Barak" }, { id: "y", typeName: "Mücahitler" }]}
-                                    control={control}
-                                    name="district"
-                                    defaultValue={firm.district}
-                                    getOptionLabel={(option) => option.typeName}
-                                    getOptionSelected={(option, value) => option.id === value.id}
-                                    required={true}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            variant="outlined"
-                                            label="Mahalle"
-                                            type="text"
-                                            error={!!errors.district}
-                                        />
-                                    )}
-                                />
-
-                                <ControlledAutocomplete
-                                    className="mb-4 w-full"
-                                    options={[{ id: "x", typeName: "100248" }, { id: "y", typeName: "100249" }]}
-                                    control={control}
-                                    name="street"
-                                    defaultValue={firm.street}
-                                    getOptionLabel={(option) => option.typeName}
-                                    getOptionSelected={(option, value) => option.id === value.id}
-                                    required={true}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            variant="outlined"
-                                            label="Sokak"
-                                            type="text"
-                                            error={!!errors.street}
-                                        />
-                                    )}
-                                />
-
-                                <Controller
-                                    render={({ field }) =>
-                                        <TextField
-                                            {...field}
-                                            className="mb-4 w-full"
-                                            variant="outlined"
-                                            label="Bina No"
-                                            type="text"
-                                            error={!!errors.buildingNumber}
-                                        />
-                                    }
-                                    name="buildingNumber"
-                                    control={control}
-                                    rules={{ required: true }}
-                                    defaultValue={firm.buildingNumber}
-                                />
-
-                                <Controller
-                                    render={({ field }) =>
-                                        <TextField
-                                            {...field}
-                                            className="mb-4 w-full"
-                                            variant="outlined"
-                                            label="Açıklama"
-                                            type="text"
-                                            error={!!errors.description}
-                                        />
-                                    }
-                                    name="description"
-                                    control={control}
-                                    rules={{ required: false }}
-                                    defaultValue={firm.description}
-                                />
-
-                                <Controller
-                                    render={({ field }) =>
-                                        <TextField
-                                            {...field}
-                                            className="mb-4 w-full"
-                                            variant="outlined"
-                                            label="Cep Telefonu"
-                                            type="phone"
-                                            error={!!errors.mobilePhone}
-                                        />
-                                    }
-                                    name="mobilePhone"
-                                    control={control}
-                                    rules={{ required: true }}
-                                    defaultValue={firm.mobilePhone}
-                                />
-                            </Grid>
-                        </Grid>
+                        }
                     </DialogContent>
                     <DialogActions>
                         <Button variant="outlined" color="primary" onClick={() => setOpen(false)}>
                             Hayır
                         </Button>
-                        <Button variant="contained" color="primary" onClick={handleSubmit((firm) => props.updateFirm(firm, props.data.id, () => { props.getFirmList();  setOpen(false); }, () => {console.log("hata")}))} autoFocus>
+                        <Button variant="contained" color="primary" onClick={handleSubmit((firm) => props.updateFirm(firm, location, props.data.id, () => { props.getFirmList(); setOpen(false); }, () => { console.log("hata") }))} autoFocus>
                             Evet
                         </Button>
                     </DialogActions>
@@ -382,6 +443,10 @@ const EditFirmDialog = (props) => {
     )
 }
 
+
 export default connect(null, {
-    updateFirm
+    updateFirm,
+    getLastId,
+    getUserList,
+    getDistrictList
 })(EditFirmDialog)

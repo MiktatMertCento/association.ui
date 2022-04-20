@@ -291,7 +291,8 @@ const UserRegistration = (props) => {
                                                             'aria-label': 'change date',
                                                         }}
                                                         okLabel="Tarih Seç"
-                                                        cancelLabel="Vazgeç"                                            {...rest}
+                                                        cancelLabel="Vazgeç"
+                                                        {...rest}
                                                         error={!!errors.birthday}
                                                     />
                                                 )}
@@ -304,17 +305,17 @@ const UserRegistration = (props) => {
                                             control={control}
                                             name="birthCity"
                                             defaultValue={null}
-                                            required={true}
                                             getOptionLabel={(option) => option.il}
                                             getOptionSelected={(option, value) => option.nviid === value.nviid}
-                                            onChange={(() => { setValue("birthCounty", null) })}
+                                            onChange={(() => { setValue("birthCounty", null); setValue("birthDistrict", null); })}
+                                            required={true}
                                             renderInput={(params) => (
                                                 <TextField
                                                     {...params}
                                                     variant="outlined"
                                                     label="İl"
                                                     type="text"
-                                                    error={!!errors.city}
+                                                    error={!!errors.birthCity}
                                                 />
                                             )}
                                         />
@@ -325,16 +326,17 @@ const UserRegistration = (props) => {
                                             control={control}
                                             name="birthCounty"
                                             defaultValue={null}
-                                            required={true}
                                             getOptionLabel={(option) => option.ilce}
                                             getOptionSelected={(option, value) => option.nviid === value.nviid}
+                                            onChange={(() => { setValue("birthDistrict", null); })}
+                                            required={true}
                                             renderInput={(params) => (
                                                 <TextField
                                                     {...params}
                                                     variant="outlined"
                                                     label="İlçe"
                                                     type="text"
-                                                    error={!!errors.county}
+                                                    error={!!errors.birthCounty}
                                                 />
                                             )}
                                         />
@@ -452,14 +454,14 @@ const UserRegistration = (props) => {
                                             required={true}
                                             getOptionLabel={(option) => option.il}
                                             getOptionSelected={(option, value) => option.nviid === value.nviid}
-                                            onChange={(() => { setValue("liveCounty", null) })}
+                                            onChange={(() => { setValue("liveCounty", null); setValue("liveDistrict", null); })}
                                             renderInput={(params) => (
                                                 <TextField
                                                     {...params}
                                                     variant="outlined"
-                                                    label="İl"
+                                                    label="Yaşadığı İl"
                                                     type="text"
-                                                    error={!!errors.city}
+                                                    error={!!errors.liveCity}
                                                 />
                                             )}
                                         />
@@ -469,6 +471,7 @@ const UserRegistration = (props) => {
                                             options={watch("liveCity") ? counties.filter(county => county.plaka === watch("liveCity").plaka) : []}
                                             control={control}
                                             name="liveCounty"
+                                            onChange={(() => { setValue("liveDistrict", null); })}
                                             defaultValue={null}
                                             required={true}
                                             getOptionLabel={(option) => option.ilce}
@@ -477,9 +480,9 @@ const UserRegistration = (props) => {
                                                 <TextField
                                                     {...params}
                                                     variant="outlined"
-                                                    label="İlçe"
+                                                    label="Yaşadığı İlçe"
                                                     type="text"
-                                                    error={!!errors.county}
+                                                    error={!!errors.liveCounty}
                                                 />
                                             )}
                                         />
@@ -516,6 +519,7 @@ const UserRegistration = (props) => {
                                                     error={!!errors.liveStreet}
                                                 />
                                             }
+                                            rules={{ required: true }}
                                             name="liveStreet"
                                             control={control}
                                             defaultValue=""
@@ -533,6 +537,7 @@ const UserRegistration = (props) => {
                                                     error={!!errors.liveBuildingNo}
                                                 />
                                             }
+                                            rules={{ required: true }}
                                             name="liveBuildingNo"
                                             control={control}
                                             defaultValue=""

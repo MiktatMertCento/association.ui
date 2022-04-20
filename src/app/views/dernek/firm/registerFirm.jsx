@@ -8,19 +8,32 @@ import trLocale from "date-fns/locale/tr";
 import ControlledAutocomplete from '../components/ControlledAutocomplete';
 import { KeyboardDatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 import useSettings from 'app/hooks/useSettings';
-import { registerFirm, getLastId } from 'app/services/service';
+import { registerFirm, getLastId, getUserList, getDistrictList } from 'app/services/service';
 import { ServiceCalling } from '../../../services/serviceCalling';
+import counties from '../assets/json/Counties.json';
+import cities from '../assets/json/Cities.json';
+import MapPicker from 'react-google-map-picker';
 
 const RegisterFirm = (props) => {
   const { settings } = useSettings()
   const [isLoading, setIsLoading] = useState(true)
   const { getValues, setValue, handleSubmit, control, reset, formState: { errors }, watch } = useForm();
   const profilePictureRef = useRef()
+  const [location, setLocation] = useState({ lat: 37.08380330140428, lng: 37.357412173004626 });
+  const [zoom, setZoom] = useState(17);
+  const [userList, setUserList] = useState([])
+  const [districtList, setDistrictList] = useState([])
 
   const getParameters = useCallback(
     async (isSaved) => {
       let lastUserId = await ServiceCalling.getLastId(props, 'firms');
       setValue("registerNo", parseInt(lastUserId) + 1)
+
+      let userList_ = await ServiceCalling.getUserList(props);
+      setUserList(userList_)
+
+      let districtList_ = await ServiceCalling.getDistrictList(props);
+      setDistrictList(districtList_)
 
       if (!isSaved) {
 
@@ -34,7 +47,6 @@ const RegisterFirm = (props) => {
   useEffect(() => {
     getParameters();
   }, [getParameters])
-
 
   const defaultValues = {
     registerNo: "",
@@ -50,7 +62,7 @@ const RegisterFirm = (props) => {
     city: null,
     county: null,
     district: null,
-    street: null,
+    street: "",
     buildingNumber: "",
     description: "",
     mobilePhone: "",
@@ -73,7 +85,7 @@ const RegisterFirm = (props) => {
               />
             </div>
             <SimpleCard title="Firma Kayıt">
-              <form onSubmit={handleSubmit((firm) => { props.registerFirm(firm, () => { reset(defaultValues); getParameters(true); }, () => console.log("başarısız")) })}>
+              <form onSubmit={handleSubmit((firm) => { props.registerFirm(firm, location, () => { reset(defaultValues); getParameters(true); }, () => console.log("başarısız")) })}>
                 <Grid container spacing={6}>
                   <Grid item lg={6} md={6} sm={12} xs={12}>
                     <Controller
@@ -174,12 +186,12 @@ const RegisterFirm = (props) => {
 
                     <ControlledAutocomplete
                       className="mb-4 w-full"
-                      options={[{ id: "x", typeName: "Miktat Cento" }, { id: "y", typeName: "Hasan Oruç" }]}
+                      options={userList}
                       control={control}
                       name="admin1"
                       defaultValue={null}
                       required={true}
-                      getOptionLabel={(option) => option.typeName}
+                      getOptionLabel={(option) => `${option.data.name} ${option.data.surname} - ${option.data.idNo}`}
                       getOptionSelected={(option, value) => option.id === value.id}
                       renderInput={(params) => (
                         <TextField
@@ -194,11 +206,12 @@ const RegisterFirm = (props) => {
 
                     <ControlledAutocomplete
                       className="mb-4 w-full"
-                      options={[{ id: "x", typeName: "Miktat Cento" }, { id: "y", typeName: "Hasan Oruç" }]}
+                      options={userList}
                       control={control}
                       name="admin2"
                       defaultValue={null}
-                      getOptionLabel={(option) => option.typeName}
+                      required={false}
+                      getOptionLabel={(option) => `${option.data.name} ${option.data.surname} - ${option.data.idNo}`}
                       getOptionSelected={(option, value) => option.id === value.id}
                       renderInput={(params) => (
                         <TextField
@@ -213,11 +226,12 @@ const RegisterFirm = (props) => {
 
                     <ControlledAutocomplete
                       className="mb-4 w-full"
-                      options={[{ id: "x", typeName: "Miktat Cento" }, { id: "y", typeName: "Hasan Oruç" }]}
+                      options={userList}
                       control={control}
                       name="admin3"
                       defaultValue={null}
-                      getOptionLabel={(option) => option.typeName}
+                      required={false}
+                      getOptionLabel={(option) => `${option.data.name} ${option.data.surname} - ${option.data.idNo}`}
                       getOptionSelected={(option, value) => option.id === value.id}
                       renderInput={(params) => (
                         <TextField
@@ -229,6 +243,8 @@ const RegisterFirm = (props) => {
                         />
                       )}
                     />
+
+
 
                     <Controller
                       render={({ field }) =>
@@ -276,13 +292,14 @@ const RegisterFirm = (props) => {
 
                     <ControlledAutocomplete
                       className="mb-4 w-full"
-                      options={[{ id: "x", typeName: "Gaziantep" }, { id: "y", typeName: "Ankara" }]}
+                      options={cities}
                       control={control}
                       name="city"
                       defaultValue={null}
-                      getOptionLabel={(option) => option.typeName}
-                      getOptionSelected={(option, value) => option.id === value.id}
                       required={true}
+                      getOptionLabel={(option) => option.il}
+                      getOptionSelected={(option, value) => option.nviid === value.nviid}
+                      onChange={(() => { setValue("county", null); setValue("district", null); })}
                       renderInput={(params) => (
                         <TextField
                           {...params}
@@ -296,13 +313,14 @@ const RegisterFirm = (props) => {
 
                     <ControlledAutocomplete
                       className="mb-4 w-full"
-                      options={[{ id: "x", typeName: "Şahinbey" }, { id: "y", typeName: "Şehitkamil" }]}
+                      options={watch("city") ? counties.filter(county => county.plaka === watch("city").plaka) : []}
                       control={control}
                       name="county"
                       defaultValue={null}
-                      getOptionLabel={(option) => option.typeName}
-                      getOptionSelected={(option, value) => option.id === value.id}
                       required={true}
+                      getOptionLabel={(option) => option.ilce}
+                      getOptionSelected={(option, value) => option.nviid === value.nviid}
+                      onChange={(() => { setValue("district", null); })}
                       renderInput={(params) => (
                         <TextField
                           {...params}
@@ -314,13 +332,15 @@ const RegisterFirm = (props) => {
                       )}
                     />
 
+
+
                     <ControlledAutocomplete
                       className="mb-4 w-full"
-                      options={[{ id: "x", typeName: "Barak" }, { id: "y", typeName: "Mücahitler" }]}
+                      options={watch("county") ? districtList.filter(district => district.data.county === watch("county").ilce) : []}
                       control={control}
                       name="district"
                       defaultValue={null}
-                      getOptionLabel={(option) => option.typeName}
+                      getOptionLabel={(option) => option.data.typeName}
                       getOptionSelected={(option, value) => option.id === value.id}
                       required={true}
                       renderInput={(params) => (
@@ -334,24 +354,21 @@ const RegisterFirm = (props) => {
                       )}
                     />
 
-                    <ControlledAutocomplete
-                      className="mb-4 w-full"
-                      options={[{ id: "x", typeName: "100248" }, { id: "y", typeName: "100249" }]}
-                      control={control}
-                      name="street"
-                      defaultValue={null}
-                      getOptionLabel={(option) => option.typeName}
-                      getOptionSelected={(option, value) => option.id === value.id}
-                      required={true}
-                      renderInput={(params) => (
+                    <Controller
+                      render={({ field }) =>
                         <TextField
-                          {...params}
+                          {...field}
+                          className="mb-4 w-full"
                           variant="outlined"
                           label="Sokak"
                           type="text"
                           error={!!errors.street}
                         />
-                      )}
+                      }
+                      name="street"
+                      control={control}
+                      rules={{ required: true }}
+                      defaultValue=""
                     />
 
                     <Controller
@@ -407,7 +424,16 @@ const RegisterFirm = (props) => {
                   </Grid>
                 </Grid>
 
-                <Button color="primary" variant="contained" type="submit">
+                <MapPicker defaultLocation={location}
+                  zoom={zoom}
+                  mapTypeId="hybrid"
+                  style={{ height: '20rem' }}
+                  onChangeLocation={(lat, lng) => setLocation({ lat: lat, lng: lng })}
+                  onChangeZoom={zoom => setZoom(zoom)}
+                  className="rounded-1"
+                  apiKey={process.env.REACT_APP_GOOGLE_MAP_API} />
+
+                <Button className='mt-2' color="primary" variant="contained" type="submit">
                   <Icon>save</Icon>
                   <span className="pl-2 capitalize">Kayıt Et</span>
                 </Button>
@@ -421,5 +447,7 @@ const RegisterFirm = (props) => {
 
 export default connect(null, {
   registerFirm,
-  getLastId
+  getLastId,
+  getUserList,
+  getDistrictList
 })(RegisterFirm)

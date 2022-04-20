@@ -3,7 +3,6 @@ import { Breadcrumb, MatxLoading, SimpleCard } from 'app/components';
 import React, { useCallback, useEffect, useState } from 'react'
 import { connect } from 'react-redux';
 import { Controller, useForm } from 'react-hook-form';
-import ControlledAutocomplete from '../components/ControlledAutocomplete';
 import useSettings from 'app/hooks/useSettings';
 import { registerAdmin, getLastId } from 'app/services/service';
 import { ServiceCalling } from '../../../services/serviceCalling';

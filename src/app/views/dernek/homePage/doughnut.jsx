@@ -1,11 +1,14 @@
-import React from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import ReactEcharts from 'echarts-for-react'
 import { useTheme } from '@material-ui/styles'
+import { ServiceCalling } from 'app/services/serviceCalling'
+import { getAdminList, getUserList } from 'app/services/service'
+import { connect } from 'react-redux'
 
-const DoughnutChart = ({ height, color = [] }) => {
+const DoughnutChart = (props) => {
     const theme = useTheme()
-
-    const option = {
+    const [isLoading, setIsLoading] = useState(true)
+    const [option, setOption] = useState({
         legend: {
             show: true,
             itemGap: 20,
@@ -45,7 +48,7 @@ const DoughnutChart = ({ height, color = [] }) => {
 
         series: [
             {
-                name: 'Traffic Rate',
+                name: 'Üye Sayısı',
                 type: 'pie',
                 radius: ['45%', '72.55%'],
                 center: ['50%', '50%'],
@@ -80,14 +83,13 @@ const DoughnutChart = ({ height, color = [] }) => {
                 },
                 data: [
                     {
-                        value: 65,
-                        name: 'Google',
+                        value: 1,
+                        name: 'Üyeler',
                     },
                     {
-                        value: 20,
-                        name: 'Facebook',
+                        value: 1,
+                        name: 'Yöneticiler',
                     },
-                    { value: 15, name: 'Others' },
                 ],
                 itemStyle: {
                     emphasis: {
@@ -98,17 +100,39 @@ const DoughnutChart = ({ height, color = [] }) => {
                 },
             },
         ],
-    }
+    })
+
+
+    const getParameters = useCallback(
+        async () => {
+            let adminList = await ServiceCalling.getAdminList(props)
+            let userList = await ServiceCalling.getUserList(props)
+
+            setOption(option => ({ ...option, series: [{ ...option.series[0], data: [{ value: userList.length, name: 'Üyeler' }, { value: adminList.length, name: 'Yöneticiler' }] }] }))
+
+            setIsLoading(false);
+        },
+        [props]
+    );
+
+    useEffect(() => {
+        getParameters();
+    }, [getParameters])
+
+
 
     return (
         <ReactEcharts
-            style={{ height: height }}
+            style={{ height: props.height }}
             option={{
                 ...option,
-                color: [...color],
+                color: [...props.color],
             }}
         />
     )
 }
 
-export default DoughnutChart
+export default connect(null, {
+    getAdminList,
+    getUserList,
+})(DoughnutChart)

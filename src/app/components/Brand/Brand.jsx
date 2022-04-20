@@ -7,7 +7,7 @@ import { useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles(({ palette, ...theme }) => ({
     brand: {
-        padding: '20px 18px 20px 29px',
+        padding: '20px 18px 20px 15px',
     },
     hideOnCompact: {
         display: 'none',
@@ -26,10 +26,9 @@ const Brand = ({ children }) => {
             className={clsx('flex items-center justify-between', classes.brand)}
         >
             <div className="flex items-center">
-                <MatxLogo />
                 <span
                     className={clsx({
-                        'text-18 ml-2 font-medium sidenavHoverShow': true,
+                        'text-18 font-medium sidenavHoverShow': true,
                         [classes.hideOnCompact]: mode === 'compact',
                     })}
                 >
