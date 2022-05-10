@@ -7,7 +7,6 @@ import { connect } from 'react-redux'
 
 const DoughnutChart = (props) => {
     const theme = useTheme()
-    const [isLoading, setIsLoading] = useState(true)
     const [option, setOption] = useState({
         legend: {
             show: true,
@@ -98,8 +97,6 @@ const DoughnutChart = (props) => {
             let userList = await ServiceCalling.getUserList(props)
 
             setOption(option => ({ ...option, name: 'Üye Sayısı', series: [{ ...option.series[0], data: [{ value: userList.length, name: `Üyeler - ${userList.length}` }, { value: adminList.length, name: `Yöneticiler - ${adminList.length}` }] }] }))
-
-            setIsLoading(false);
         },
         [props]
     );
