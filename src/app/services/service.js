@@ -40,7 +40,7 @@ export const getLastId = (collection, SuccessOperation, FailedOperation) => {
 
 export const getAdminList = (SuccessOperation, FailedOperation) => {
     return () => {
-        const REF_DATABASE = db.collection('users').where("userType", "==", "admin").where('status', '==', 1).orderBy("registerDate", 'desc');
+        const REF_DATABASE = db.collection('admins').where("userType", "==", "admin").where('status', '==', 1).orderBy("registerDate", 'desc');
 
         REF_DATABASE.get().then(function (querySnapshot) {
             const adminList = [];
@@ -61,11 +61,11 @@ export const getAdminList = (SuccessOperation, FailedOperation) => {
 export const registerAdmin = (admin, SuccessOperation, FailedOperation) => {
     return () => {
         if (tcNoValidate(admin.idNo)) {
-            db.collection('users').where("idNo", "==", admin.idNo).where('status', '==', 1).get().then((querySnapshot) => {
+            db.collection('admins').where("idNo", "==", admin.idNo).where('status', '==', 1).get().then((querySnapshot) => {
                 if (querySnapshot.empty) {
-                    db.collection('users').where("registerNo", '==', admin.registerNo).get().then((querySnapshot) => {
+                    db.collection('admins').where("registerNo", '==', admin.registerNo).get().then((querySnapshot) => {
                         if (querySnapshot.empty) {
-                            const refDatabase = db.collection('users');
+                            const refDatabase = db.collection('admins');
 
                             refDatabase.add({
                                 registerNo: admin.registerNo,
@@ -104,11 +104,11 @@ export const updateAdmin = (admin, oldAdmin, adminId, SuccessOperation, FailedOp
     return () => {
         if (tcNoValidate(admin.idNo)) {
             if (admin.idNo !== oldAdmin.idNo) {
-                db.collection("users").where("idNo", "==", admin.idNo).where('status', '==', 1).get().then((querySnapshot) => {
+                db.collection("admins").where("idNo", "==", admin.idNo).where('status', '==', 1).get().then((querySnapshot) => {
                     if (!querySnapshot.empty) {
                         SnackbarUtils.error('Bu TC Kimlik Numarasına sahip bir kullanıcı zaten var!');
                     } else {
-                        const REF_DATABASE = db.collection('users').doc(adminId);
+                        const REF_DATABASE = db.collection('admins').doc(adminId);
 
                         REF_DATABASE.update(Object.assign({
                             idNo: admin.idNo,
@@ -125,7 +125,7 @@ export const updateAdmin = (admin, oldAdmin, adminId, SuccessOperation, FailedOp
                     }
                 })
             } else {
-                const REF_DATABASE = db.collection('users').doc(adminId);
+                const REF_DATABASE = db.collection('admins').doc(adminId);
 
                 REF_DATABASE.update(Object.assign({
                     idNo: admin.idNo,
@@ -148,7 +148,7 @@ export const updateAdmin = (admin, oldAdmin, adminId, SuccessOperation, FailedOp
 
 export const deleteAdmin = (adminId, reason, SuccessOperation, FailedOperation) => {
     return () => {
-        const REF_DATABASE = db.collection('users').doc(adminId);
+        const REF_DATABASE = db.collection('admins').doc(adminId);
 
         REF_DATABASE.update({
             status: 0,
@@ -170,7 +170,7 @@ export const deleteAdmin = (adminId, reason, SuccessOperation, FailedOperation) 
 //User İşlemleri
 export const getUserList = (SuccessOperation, FailedOperation) => {
     return () => {
-        const REF_DATABASE = db.collection('users').where("userType", "==", "user").where('status', '==', 1).orderBy("registerDate", 'desc');
+        const REF_DATABASE = db.collection('users').where("userType", "==", "user").where('status', '==', 1).orderBy("registerDate", 'desc').limit(10);
 
         REF_DATABASE.get().then(function (querySnapshot) {
             const userList = [];
@@ -558,7 +558,7 @@ export const registerFirm = (firm, location, SuccessOperation, FailedOperation) 
                             profileImage: url,
                             city: firm.city.il,
                             county: firm.county.ilce,
-                            district: firm.district.id,
+                            district: firm.district,
                             street: firm.street,
                             buildingNumber: firm.buildingNumber,
                             mobilePhone: firm.mobilePhone,
@@ -606,7 +606,7 @@ export const updateFirm = (firm, location, firmId, SuccessOperation, FailedOpera
                             profileImage: url,
                             city: firm.city.il,
                             county: firm.county.ilce,
-                            district: firm.district.id,
+                            district: firm.district,
                             street: firm.street,
                             buildingNumber: firm.buildingNumber,
                             mobilePhone: firm.mobilePhone,
@@ -641,7 +641,7 @@ export const updateFirm = (firm, location, firmId, SuccessOperation, FailedOpera
                 businessPhone: firm.businessPhone,
                 city: firm.city.il,
                 county: firm.county.ilce,
-                district: firm.district.id,
+                district: firm.district,
                 street: firm.street,
                 buildingNumber: firm.buildingNumber,
                 mobilePhone: firm.mobilePhone,

@@ -27,7 +27,6 @@ const EditFirmDialog = (props) => {
     const [location, setLocation] = useState(firm.location);
     const [zoom, setZoom] = useState(17);
     const [userList, setUserList] = useState([])
-    const [districtList, setDistrictList] = useState([])
     const [mapComponent, setMapComponent] = useState(() => <div></div>)
 
     const getParameters = useCallback(
@@ -37,9 +36,6 @@ const EditFirmDialog = (props) => {
 
             let userList_ = await ServiceCalling.getUserList(props);
             setUserList(userList_)
-
-            let districtList_ = await ServiceCalling.getDistrictList(props);
-            setDistrictList(districtList_)
 
             if (!isSaved) {
 
@@ -334,24 +330,21 @@ const EditFirmDialog = (props) => {
 
 
 
-                                            <ControlledAutocomplete
-                                                className="mb-4 w-full"
-                                                options={watch("county") ? districtList.filter(district => district.data.county === watch("county").ilce) : []}
-                                                control={control}
-                                                name="district"
-                                                defaultValue={districtList.find(district => district.id === firm.district)}
-                                                getOptionLabel={(option) => option.data.typeName}
-                                                getOptionSelected={(option, value) => option.id === value.id}
-                                                required={true}
-                                                renderInput={(params) => (
+                                            <Controller
+                                                render={({ field }) =>
                                                     <TextField
-                                                        {...params}
+                                                        {...field}
+                                                        className="mb-4 w-full"
                                                         variant="outlined"
                                                         label="Mahalle"
                                                         type="text"
                                                         error={!!errors.district}
                                                     />
-                                                )}
+                                                }
+                                                name="district"
+                                                control={control}
+                                                rules={{ required: true }}
+                                                defaultValue={firm.district}
                                             />
 
                                             <Controller

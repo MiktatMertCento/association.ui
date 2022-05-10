@@ -8,14 +8,14 @@ const JWT_VALIDITY = '7 days'
 Mock.onPost('/api/auth/login').reply(async (config) => {
     try {
         const { username, password } = JSON.parse(config.data)
-        const query = await db.collection('users').where('idNo', '==', username).where('password', '==', sha256(password)).where('userType', '==', "admin").where('status', "==", 1).get();
+        const query = await db.collection('admins').where('idNo', '==', username).where('password', '==', sha256(password)).where('userType', '==', "admin").where('status', "==", 1).get();
 
         if (query.docs.length >= 1) {
             const accessToken = jwt.sign({ userId: query.docs[0].id }, process.env.REACT_APP_JWT_SECRET, {
                 expiresIn: JWT_VALIDITY,
             })
 
-            await db.collection("users").doc(query.docs[0].id).update({
+            await db.collection("admins").doc(query.docs[0].id).update({
                 JWT: accessToken,
             })
 
@@ -87,7 +87,7 @@ Mock.onGet('/api/auth/profile').reply(async (config) => {
 
         const accessToken = Authorization.split(' ')[1]
         const { userId } = jwt.verify(accessToken, process.env.REACT_APP_JWT_SECRET)
-        const user = await db.collection('users').doc(userId).get();
+        const user = await db.collection('admins').doc(userId).get();
 
         if (accessToken === user.data().JWT) {
             return [

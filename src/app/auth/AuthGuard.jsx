@@ -46,7 +46,7 @@ const AuthGuard = ({ children }) => {
     useEffect(() => {
         const accessToken = localStorage.getItem("accessToken");
         let unlisten = () => { };
-        if (user) unlisten = db.collection('users').doc(user.id).onSnapshot((snapshot) => {
+        if (user) unlisten = db.collection('admins').doc(user.id).onSnapshot((snapshot) => {
             if (accessToken !== snapshot.data().JWT) {
                 logout();
                 SnackbarUtils.error('Hesabınıza başkası tarafından giriş yapıldı!')

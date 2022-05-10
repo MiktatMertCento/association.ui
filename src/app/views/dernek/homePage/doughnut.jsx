@@ -48,7 +48,6 @@ const DoughnutChart = (props) => {
 
         series: [
             {
-                name: 'Üye Sayısı',
                 type: 'pie',
                 radius: ['45%', '72.55%'],
                 center: ['50%', '50%'],
@@ -81,16 +80,6 @@ const DoughnutChart = (props) => {
                         show: false,
                     },
                 },
-                data: [
-                    {
-                        value: 1,
-                        name: 'Üyeler',
-                    },
-                    {
-                        value: 1,
-                        name: 'Yöneticiler',
-                    },
-                ],
                 itemStyle: {
                     emphasis: {
                         shadowBlur: 10,
@@ -108,7 +97,7 @@ const DoughnutChart = (props) => {
             let adminList = await ServiceCalling.getAdminList(props)
             let userList = await ServiceCalling.getUserList(props)
 
-            setOption(option => ({ ...option, series: [{ ...option.series[0], data: [{ value: userList.length, name: 'Üyeler' }, { value: adminList.length, name: 'Yöneticiler' }] }] }))
+            setOption(option => ({ ...option, name: 'Üye Sayısı', series: [{ ...option.series[0], data: [{ value: userList.length, name: `Üyeler - ${userList.length}` }, { value: adminList.length, name: `Yöneticiler - ${adminList.length}` }] }] }))
 
             setIsLoading(false);
         },

@@ -22,7 +22,6 @@ const RegisterFirm = (props) => {
   const [location, setLocation] = useState({ lat: 37.08380330140428, lng: 37.357412173004626 });
   const [zoom, setZoom] = useState(17);
   const [userList, setUserList] = useState([])
-  const [districtList, setDistrictList] = useState([])
 
   const getParameters = useCallback(
     async (isSaved) => {
@@ -31,9 +30,6 @@ const RegisterFirm = (props) => {
 
       let userList_ = await ServiceCalling.getUserList(props);
       setUserList(userList_)
-
-      let districtList_ = await ServiceCalling.getDistrictList(props);
-      setDistrictList(districtList_)
 
       if (!isSaved) {
 
@@ -61,7 +57,7 @@ const RegisterFirm = (props) => {
     profileImage: undefined,
     city: null,
     county: null,
-    district: null,
+    district: "",
     street: "",
     buildingNumber: "",
     description: "",
@@ -299,7 +295,7 @@ const RegisterFirm = (props) => {
                       required={true}
                       getOptionLabel={(option) => option.il}
                       getOptionSelected={(option, value) => option.nviid === value.nviid}
-                      onChange={(() => { setValue("county", null); setValue("district", null); })}
+                      onChange={(() => { setValue("county", null); })}
                       renderInput={(params) => (
                         <TextField
                           {...params}
@@ -320,7 +316,6 @@ const RegisterFirm = (props) => {
                       required={true}
                       getOptionLabel={(option) => option.ilce}
                       getOptionSelected={(option, value) => option.nviid === value.nviid}
-                      onChange={(() => { setValue("district", null); })}
                       renderInput={(params) => (
                         <TextField
                           {...params}
@@ -333,25 +328,21 @@ const RegisterFirm = (props) => {
                     />
 
 
-
-                    <ControlledAutocomplete
-                      className="mb-4 w-full"
-                      options={watch("county") ? districtList.filter(district => district.data.county === watch("county").ilce) : []}
-                      control={control}
-                      name="district"
-                      defaultValue={null}
-                      getOptionLabel={(option) => option.data.typeName}
-                      getOptionSelected={(option, value) => option.id === value.id}
-                      required={true}
-                      renderInput={(params) => (
+                    <Controller
+                      render={({ field }) =>
                         <TextField
-                          {...params}
+                          {...field}
+                          className="mb-4 w-full"
                           variant="outlined"
                           label="Mahalle"
                           type="text"
                           error={!!errors.district}
                         />
-                      )}
+                      }
+                      name="district"
+                      control={control}
+                      rules={{ required: true }}
+                      defaultValue=""
                     />
 
                     <Controller

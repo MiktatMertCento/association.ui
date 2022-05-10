@@ -15,7 +15,7 @@ const RegisterAdmin = (props) => {
 
     const getParameters = useCallback(
         async (isSaved) => {
-            let lastUserId = await ServiceCalling.getLastId(props, 'users');
+            let lastUserId = await ServiceCalling.getLastId(props, 'admins');
             setValue("registerNo", parseInt(lastUserId) + 1)
 
             if (!isSaved) {
