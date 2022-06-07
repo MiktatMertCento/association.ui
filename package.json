@@ -5,7 +5,7 @@
     "email": "themiktat@gmail.com",
     "url": "https://miktatcento.org"
   },
-  "homepage": "/",
+  "homepage": "https://www.musabeyliler.org.tr/yonetim",
   "version": "2.0.0",
   "private": true,
   "dependencies": {
