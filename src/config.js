@@ -11,12 +11,12 @@ import "firebase/firestore";
 import 'firebase/storage';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCa3ZadxYDZmn7XNJJj44DTsWTxjJWI15k",
-  authDomain: "dernek-mc.firebaseapp.com",
-  projectId: "dernek-mc",
-  storageBucket: "dernek-mc.appspot.com",
-  messagingSenderId: "876717851776",
-  appId: "1:876717851776:web:8d742334c2a3dcc5239265"
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID
 };
 
 firebase.initializeApp(firebaseConfig);
