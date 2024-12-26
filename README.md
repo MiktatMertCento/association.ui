@@ -1,17 +1,17 @@
-# DernekX - Dernek Yönetim Sistemi
+# DernekX - Association Management System
 
-DernekX, derneklerin yönetim süreçlerini dijitalleştiren ve modernleştiren bir web uygulamasıdır. React ve Firebase teknolojileri kullanılarak geliştirilmiş modern bir yönetim panelidir.
+DernekX is a web application that digitalizes and modernizes association management processes. It is a modern management panel developed using React and Firebase technologies.
 
-## 🚀 Özellikler
+## 🚀 Features
 
-- 🔐 Güvenli Kimlik Doğrulama Sistemi
-- 👥 Rol Tabanlı Yetkilendirme (SA, Admin, Editor, Guest)
-- 📊 Modern ve Responsive Arayüz
-- 🔄 Real-time Veri Senkronizasyonu
-- 📱 Mobil Uyumlu Tasarım
-- 🌐 Firebase Entegrasyonu
+- 🔐 Secure Authentication System
+- 👥 Role-Based Authorization (SA, Admin, Editor, Guest)
+- 📊 Modern and Responsive Interface
+- 🔄 Real-time Data Synchronization
+- 📱 Mobile-Friendly Design
+- 🌐 Firebase Integration
 
-## 🛠️ Kullanılan Teknolojiler
+## 🛠️ Technologies Used
 
 - React.js
 - Firebase (Authentication, Firestore, Storage)
@@ -20,78 +20,78 @@ DernekX, derneklerin yönetim süreçlerini dijitalleştiren ve modernleştiren 
 - Axios
 - JWT Authentication
 
-## 📋 Gereksinimler
+## 📋 Requirements
 
-- Node.js (v14 veya üzeri)
-- npm veya yarn
-- Firebase Hesabı
+- Node.js (v14 or higher)
+- npm or yarn
+- Firebase Account
 
-## 🔧 Kurulum
+## 🔧 Installation
 
-1. Projeyi klonlayın:
+1. Clone the project:
 ```bash
 git clone [repo-url]
 cd dernekx
 ```
 
-2. Bağımlılıkları yükleyin:
+2. Install dependencies:
 ```bash
 npm install
-# veya
+# or
 yarn install
 ```
 
-3. Çevresel değişkenleri ayarlayın:
-   - `.env.example` dosyasını `.env` olarak kopyalayın
-   - Firebase yapılandırma bilgilerinizi `.env` dosyasına ekleyin
+3. Set up environment variables:
+   - Copy `.env.example` file to `.env`
+   - Add your Firebase configuration details to the `.env` file
 
-4. Uygulamayı başlatın:
+4. Start the application:
 ```bash
 npm start
-# veya
+# or
 yarn start
 ```
 
-## 🏗️ Proje Yapısı
+## 🏗️ Project Structure
 
 ```
 src/
 ├── app/
-│   ├── auth/         # Kimlik doğrulama bileşenleri
-│   ├── components/   # Genel bileşenler
-│   ├── contexts/     # React context'leri
-│   ├── hooks/        # Özel React hook'ları
-│   ├── redux/        # Redux store ve reducer'lar
-│   ├── services/     # API servisleri
-│   ├── styles/       # Stil dosyaları
-│   └── views/        # Sayfa bileşenleri
-├── config.js         # Firebase yapılandırması
-├── fake-db/         # Test verileri
-└── utils.js         # Yardımcı fonksiyonlar
+│   ├── auth/         # Authentication components
+│   ├── components/   # General components
+│   ├── contexts/     # React contexts
+│   ├── hooks/        # Custom React hooks
+│   ├── redux/        # Redux store and reducers
+│   ├── services/     # API services
+│   ├── styles/       # Style files
+│   └── views/        # Page components
+├── config.js         # Firebase configuration
+├── fake-db/         # Test data
+└── utils.js         # Helper functions
 ```
 
-## 👥 Kullanıcı Rolleri
+## 👥 User Roles
 
-- **SA (Super Admin)**: Tam yetkili kullanıcı
-- **Admin**: Yönetici yetkileri
-- **Editor**: Sınırlı düzenleme yetkileri
-- **Guest**: Sadece görüntüleme yetkileri
+- **SA (Super Admin)**: Full access user
+- **Admin**: Administrative privileges
+- **Editor**: Limited editing privileges
+- **Guest**: View-only privileges
 
-## 🔒 Güvenlik
+## 🔒 Security
 
-- JWT tabanlı kimlik doğrulama
-- Rol tabanlı erişim kontrolü
-- Hassas bilgiler için çevresel değişkenler
-- Firebase güvenlik kuralları
+- JWT-based authentication
+- Role-based access control
+- Environment variables for sensitive information
+- Firebase security rules
 
-## 🤝 Katkıda Bulunma
+## 🤝 Contributing
 
-1. Bu depoyu fork'layın
-2. Yeni bir branch oluşturun (`git checkout -b feature/amazing-feature`)
-3. Değişikliklerinizi commit'leyin (`git commit -m 'feat: Add amazing feature'`)
-4. Branch'inizi push'layın (`git push origin feature/amazing-feature`)
-5. Bir Pull Request oluşturun
+1. Fork this repository
+2. Create a new branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'feat: Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Create a Pull Request
 
-## 📝 Lisans
+## 📝 License
 
-Bu proje [MIT](LICENSE) lisansı altında lisanslanmıştır.
+This project is licensed under the [MIT](LICENSE) License.
